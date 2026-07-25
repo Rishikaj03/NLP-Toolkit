@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import nltk
 import pandas as pd
 from nltk.tokenize import sent_tokenize, word_tokenize
@@ -38,18 +39,22 @@ def load_css():
 
         :root {
             --accent-1: #4F46E5;
-            --accent-2: #7C3AED;
-            --accent-3: #0EA5E9;
+            --accent-2: #0D9488;
+            --accent-3: #D97706;
             --ink: #1E293B;
             --muted: #64748B;
             --line: #E2E8F0;
         }
 
         /* ==========================================================
-           Background - clean, light, faint accent glows
+           Background - warm, tinted, professional (not plain white)
         ========================================================== */
         .stApp {
-            background: #F8FAFC;
+            background:
+                radial-gradient(1200px 500px at 10% -5%, rgba(79,70,229,0.07), transparent 60%),
+                radial-gradient(1000px 500px at 95% 10%, rgba(13,148,136,0.07), transparent 60%),
+                linear-gradient(180deg, #F3F1FF 0%, #EFF6F5 45%, #F6F4EE 100%);
+            background-attachment: fixed;
         }
 
         .stApp::before, .stApp::after {
@@ -59,17 +64,17 @@ def load_css():
             filter: blur(90px);
             z-index: 0;
             pointer-events: none;
-            opacity: 0.35;
+            opacity: 0.4;
         }
         .stApp::before {
             width: 360px; height: 360px;
             top: -110px; left: -90px;
-            background: radial-gradient(circle, rgba(79,70,229,0.16), transparent 70%);
+            background: radial-gradient(circle, rgba(79,70,229,0.18), transparent 70%);
         }
         .stApp::after {
             width: 380px; height: 380px;
             bottom: -110px; right: -90px;
-            background: radial-gradient(circle, rgba(14,165,233,0.14), transparent 70%);
+            background: radial-gradient(circle, rgba(13,148,136,0.16), transparent 70%);
         }
 
         /* ==========================================================
@@ -93,7 +98,8 @@ def load_css():
            Header - clean white card, thin gradient top edge
         ========================================================== */
         .header-container {
-            background: #FFFFFF;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(8px);
             padding: 2.6rem 2rem 2.1rem 2rem;
             border-radius: 20px;
             margin-bottom: 2.5rem;
@@ -157,7 +163,8 @@ def load_css():
            Generic Card
         ========================================================== */
         .card {
-            background: #FFFFFF;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(8px);
             padding: 1.5rem;
             border-radius: 16px;
             border: 1px solid var(--line);
@@ -254,7 +261,8 @@ def load_css():
            Metric Cards - light, crisp, animated top edge on hover
         ========================================================== */
         .metric-card {
-            background: #FFFFFF;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(8px);
             padding: 20px;
             border-radius: 16px;
             border: 1px solid var(--line);
@@ -348,7 +356,8 @@ def load_css():
            Result Boxes
         ========================================================== */
         .result-box {
-            background: #FFFFFF;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(8px);
             padding: 1rem 1.25rem;
             border-radius: 12px;
             border-left: 4px solid #6366F1;
@@ -393,7 +402,8 @@ def load_css():
            Quick Stats
         ========================================================== */
         .quick-stats {
-            background: #FFFFFF;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(8px);
             padding: 1rem 1.25rem;
             border-radius: 14px;
             border: 1px solid var(--line);
@@ -415,7 +425,8 @@ def load_css():
            Common Words Box
         ========================================================== */
         .common-words {
-            background: #FFFFFF;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(8px);
             padding: 0.75rem 1.25rem;
             border-radius: 12px;
             margin-top: 0.75rem;
@@ -578,12 +589,98 @@ nlp = load_spacy()
 # HEADER
 # --------------------------------------------------
 
-st.markdown("""
-<div class="header-container">
-    <h1 class="header-title">🧠 <span>NLP Toolkit</span></h1>
-    <p class="header-subtitle">Advanced Natural Language Processing — Analyze, Understand, and Extract Insights</p>
+HERO_HTML = """
+<div id="hero" style="position:relative;width:100%;height:196px;border-radius:22px;overflow:hidden;
+     background:linear-gradient(135deg,#EEF2FF 0%,#ECFDF5 55%,#FFFBEB 100%);
+     border:1px solid #E2E8F0;box-shadow:0 1px 3px rgba(15,23,42,0.05),0 14px 30px rgba(79,70,229,0.08);
+     font-family:'Space Grotesk','Inter',sans-serif;">
+  <canvas id="particles" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+  <div style="position:absolute;top:0;left:0;right:0;height:4px;
+       background:linear-gradient(90deg,#4F46E5,#0D9488,#D97706,#4F46E5);
+       background-size:300% 100%;animation:flowBorder 6s linear infinite;"></div>
+  <div style="position:relative;z-index:2;height:100%;display:flex;flex-direction:column;
+       align-items:center;justify-content:center;text-align:center;padding:0 20px;">
+    <div style="font-size:2.4rem;font-weight:700;color:#312E81;letter-spacing:-0.5px;">
+      🧠 <span style="background:linear-gradient(135deg,#4F46E5,#0D9488);-webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;background-clip:text;">NLP Toolkit</span>
+    </div>
+    <div style="font-size:1rem;color:#475569;margin-top:6px;">
+      Advanced Natural Language Processing &mdash; Analyze, Understand, and Extract Insights
+    </div>
+  </div>
 </div>
-""", unsafe_allow_html=True)
+<style>
+@keyframes flowBorder { 0% { background-position: 0% 0%; } 100% { background-position: 300% 0%; } }
+</style>
+<script>
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  function resize() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const colors = ['#818CF8', '#5EEAD4', '#FCD34D'];
+  const particles = [];
+  for (let i = 0; i < 42; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 2 + 1,
+      dx: (Math.random() - 0.5) * 0.35,
+      dy: (Math.random() - 0.5) * 0.35,
+      c: colors[Math.floor(Math.random() * colors.length)]
+    });
+  }
+
+  let mouseX = -999, mouseY = -999;
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
+  });
+  canvas.addEventListener('mouseleave', () => { mouseX = -999; mouseY = -999; });
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const p of particles) {
+      p.x += p.dx; p.y += p.dy;
+      if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+
+      const dMouse = Math.hypot(p.x - mouseX, p.y - mouseY);
+      if (dMouse < 70) {
+        const ang = Math.atan2(p.y - mouseY, p.x - mouseX);
+        p.x += Math.cos(ang) * 1.1;
+        p.y += Math.sin(ang) * 1.1;
+      }
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.c;
+      ctx.globalAlpha = 0.6;
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const a = particles[i], b = particles[j];
+        const dist = Math.hypot(a.x - b.x, a.y - b.y);
+        if (dist < 85) {
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.strokeStyle = 'rgba(79,70,229,0.10)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+</script>
+"""
+components.html(HERO_HTML, height=210)
 
 # --------------------------------------------------
 # INPUT SECTION
@@ -677,50 +774,117 @@ if analyze:
     
     st.markdown("---")
     st.markdown("### 📊 Analysis Metrics")
-    
-    col1, col2, col3, col4, col5, col6 = st.columns(6)
-    
-    col1.markdown(f"""
-    <div class="metric-card">
-        <p class="metric-number">{len(words)}</p>
-        <p class="metric-label">Total Words</p>
+
+    metrics_data = [
+        ("📝", "Total Words", len(words)),
+        ("📑", "Sentences", len(sentences)),
+        ("🧹", "After Stopwords", len(filtered_words)),
+        ("🏷️", "Named Entities", len(entities)),
+        ("🔗", "Noun Phrases", len(chunks)),
+        ("✨", "Unique Words", unique_words),
+    ]
+
+    METRICS_CARD_TEMPLATE = """
+    <div class="metric-card" data-value="{value}">
+        <div class="metric-icon">{icon}</div>
+        <p class="metric-number">0</p>
+        <p class="metric-label">{label}</p>
     </div>
-    """, unsafe_allow_html=True)
-    
-    col2.markdown(f"""
-    <div class="metric-card">
-        <p class="metric-number">{len(sentences)}</p>
-        <p class="metric-label">Sentences</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    col3.markdown(f"""
-    <div class="metric-card">
-        <p class="metric-number">{len(filtered_words)}</p>
-        <p class="metric-label">After Stopwords</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    col4.markdown(f"""
-    <div class="metric-card">
-        <p class="metric-number">{len(entities)}</p>
-        <p class="metric-label">Named Entities</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    col5.markdown(f"""
-    <div class="metric-card">
-        <p class="metric-number">{len(chunks)}</p>
-        <p class="metric-label">Noun Phrases</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    col6.markdown(f"""
-    <div class="metric-card">
-        <p class="metric-number">{unique_words}</p>
-        <p class="metric-label">Unique Words</p>
-    </div>
-    """, unsafe_allow_html=True)
+    """
+    metrics_cards_html = "".join(
+        METRICS_CARD_TEMPLATE.format(value=value, icon=icon, label=label)
+        for icon, label, value in metrics_data
+    )
+
+    METRICS_STYLE_AND_SCRIPT = """
+    <style>
+        body { margin: 0; font-family: 'Inter', sans-serif; }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 14px;
+        }
+        .metric-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.8));
+            border: 1px solid #E2E8F0;
+            border-radius: 16px;
+            padding: 18px 12px;
+            text-align: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+            transition: box-shadow 0.25s ease, border-color 0.25s ease;
+            will-change: transform;
+        }
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4F46E5, #0D9488, #D97706);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .metric-card:hover::before { opacity: 1; }
+        .metric-card:hover {
+            box-shadow: 0 12px 26px rgba(79, 70, 229, 0.12);
+            border-color: #C7D2FE;
+        }
+        .metric-icon { font-size: 1.3rem; margin-bottom: 2px; }
+        .metric-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4F46E5 0%, #0D9488 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            line-height: 1.2;
+        }
+        .metric-label {
+            font-size: 0.8rem;
+            color: #64748B;
+            margin-top: 0.2rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+    </style>
+    <script>
+        const cards = document.querySelectorAll('.metric-card');
+        cards.forEach((card) => {
+            const target = parseInt(card.dataset.value, 10) || 0;
+            const numEl = card.querySelector('.metric-number');
+            const duration = 850;
+            const startTime = performance.now();
+            function step(ts) {
+                const progress = Math.min((ts - startTime) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                numEl.textContent = Math.round(eased * target);
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                const rotateX = (-y / rect.height) * 8;
+                const rotateY = (x / rect.width) * 8;
+                card.style.transform =
+                    `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(600px) rotateX(0) rotateY(0) translateY(0)';
+            });
+        });
+    </script>
+    """
+
+    components.html(
+        f'<div class="metrics-grid">{metrics_cards_html}</div>' + METRICS_STYLE_AND_SCRIPT,
+        height=190,
+    )
     
     # Most common words
     if most_common:
