@@ -4,3 +4,4 @@ pandas==2.2.2
 nltk==3.9.1
 spacy==3.7.4
 thinc==8.2.5
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl

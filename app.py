@@ -5,7 +5,6 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer, WordNetLemmatizer
 from collections import Counter
-import os
 import spacy
 
 # --------------------------------------------------
