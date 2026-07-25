@@ -1,0 +1,15 @@
+html, body, [class*="css"] {
+    color: #1F2937 !important;
+}
+
+h1, h2, h3, h4, h5, h6,
+label, p, span {
+    color: #1F2937 !important;
+}
+
+.stMarkdown,
+.stText,
+.stMetricLabel,
+.stMetricValue {
+    color: #1F2937 !important;
+}
