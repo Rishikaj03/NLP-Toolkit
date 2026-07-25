@@ -7,20 +7,21 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer, WordNetLemmatizer
 from collections import Counter
 import spacy
+import time
 
 # --------------------------------------------------
 # PAGE CONFIG
 # --------------------------------------------------
 
 st.set_page_config(
-    page_title="Natural Language Processing Toolkit",
+    page_title="NLP Toolkit - Text Analysis",
     page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # --------------------------------------------------
-# CUSTOM CSS FOR MODERN UI
+# CUSTOM CSS WITH CREATIVE COLORS
 # --------------------------------------------------
 def load_css():
     st.markdown("""
@@ -31,7 +32,25 @@ def load_css():
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
         /* ==========================================================
-           Reset & Base
+           Color Variables - Mauve, Sky Blue, Royal Blue
+        ========================================================== */
+        :root {
+            --mauve: #BCA4F5;
+            --mauve-light: #D4C4F7;
+            --mauve-dark: #A084E0;
+            --sky-blue: #81CFFF;
+            --sky-blue-light: #A8DEFF;
+            --royal-blue: #4A69CE;
+            --royal-blue-dark: #3A52A8;
+            --royal-blue-light: #6A89E0;
+            --honeydew: #E5F8F0;
+            --tea-green: #ECFFBE;
+            --bg-start: #F0F4FF;
+            --bg-end: #F8F0FF;
+        }
+
+        /* ==========================================================
+           Base
         ========================================================== */
         html, body, [class*="css"] {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -40,10 +59,32 @@ def load_css():
         }
 
         /* ==========================================================
-           Background - Clean gradient
+           Animated Background
         ========================================================== */
         .stApp {
-            background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%);
+            background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+            position: relative;
+        }
+
+        .stApp::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(188, 164, 245, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(129, 207, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(74, 105, 206, 0.04) 0%, transparent 50%);
+            z-index: 0;
+            animation: bgPulse 15s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
         }
 
         header { visibility: hidden; }
@@ -53,21 +94,19 @@ def load_css():
             max-width: 1300px;
             padding-top: 2rem;
             padding-bottom: 2rem;
+            position: relative;
+            z-index: 1;
         }
 
         /* ==========================================================
-           Sidebar - Clean and minimal
+           Sidebar - Glassmorphism
         ========================================================== */
         section[data-testid="stSidebar"] {
-            background: #FFFFFF;
-            border-right: 1px solid #E5E7EB;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(188, 164, 245, 0.2);
             padding: 1.5rem 1rem;
-        }
-
-        section[data-testid="stSidebar"] .sidebar-content {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
         }
 
         .sidebar-header {
@@ -76,37 +115,40 @@ def load_css():
             gap: 12px;
             margin-bottom: 2rem;
             padding-bottom: 1rem;
-            border-bottom: 2px solid #F3F4F6;
+            border-bottom: 2px solid rgba(188, 164, 245, 0.2);
         }
 
         .sidebar-logo {
             font-size: 2rem;
-            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            background: linear-gradient(135deg, var(--royal-blue), var(--mauve));
             width: 48px;
             height: 48px;
-            border-radius: 12px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: 700;
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
         }
 
         .sidebar-title {
             font-weight: 700;
             font-size: 1.2rem;
-            color: #1F2937;
-            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, var(--royal-blue), var(--mauve));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .sidebar-subtitle {
             font-size: 0.8rem;
             color: #6B7280;
-            margin-top: -2px;
-        }
-
-        .sidebar-section {
-            margin: 1.5rem 0 1rem 0;
         }
 
         .sidebar-section-title {
@@ -114,15 +156,8 @@ def load_css():
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: #9CA3AF;
+            color: var(--royal-blue);
             margin-bottom: 0.75rem;
-        }
-
-        .tech-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 4px;
         }
 
         .tech-tag {
@@ -130,174 +165,197 @@ def load_css():
             font-weight: 600;
             padding: 0.3rem 0.8rem;
             border-radius: 20px;
-            background: #F3F4F6;
-            color: #4B5563;
-            border: 1px solid #E5E7EB;
+            background: white;
+            color: var(--royal-blue);
+            border: 1px solid rgba(188, 164, 245, 0.3);
+            transition: all 0.3s ease;
         }
 
-        .tech-tag.primary { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
-        .tech-tag.pink { background: #FDF2F8; color: #DB2777; border-color: #FBCFE8; }
-        .tech-tag.cyan { background: #ECFEFF; color: #0891B2; border-color: #A5F3FC; }
-        .tech-tag.purple { background: #F5F3FF; color: #7C3AED; border-color: #DDD6FE; }
+        .tech-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 105, 206, 0.15);
+            border-color: var(--royal-blue);
+        }
+
+        .tech-tag.primary { background: rgba(74, 105, 206, 0.08); color: var(--royal-blue); }
+        .tech-tag.pink { background: rgba(188, 164, 245, 0.08); color: var(--mauve-dark); }
+        .tech-tag.cyan { background: rgba(129, 207, 255, 0.08); color: #3A8BC0; }
+        .tech-tag.purple { background: rgba(188, 164, 245, 0.08); color: var(--mauve-dark); }
 
         .sidebar-footer {
             margin-top: auto;
             padding-top: 1rem;
-            border-top: 1px solid #F3F4F6;
+            border-top: 1px solid rgba(188, 164, 245, 0.15);
             font-size: 0.75rem;
             color: #9CA3AF;
         }
 
         /* ==========================================================
-           Header Hero
+           Hero - Glassmorphism with gradient
         ========================================================== */
         .hero-container {
-            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #EC4899 100%);
-            padding: 2.5rem 2.5rem 2rem 2.5rem;
-            border-radius: 20px;
+            background: linear-gradient(135deg, var(--royal-blue) 0%, var(--mauve) 50%, var(--sky-blue) 100%);
+            padding: 3rem 2.5rem 2.5rem 2.5rem;
+            border-radius: 24px;
             margin-bottom: 2rem;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(79, 70, 229, 0.15);
+            box-shadow: 0 15px 50px rgba(74, 105, 206, 0.2);
         }
 
         .hero-container::before {
-            content: '';
+            content: '✦';
             position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 400px;
-            height: 400px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50%;
-            pointer-events: none;
+            top: 10px;
+            right: 30px;
+            font-size: 80px;
+            color: rgba(255, 255, 255, 0.04);
+            animation: spin 20s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .hero-container::after {
-            content: '';
+            content: '✦';
             position: absolute;
-            bottom: -40%;
-            left: -10%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 50%;
-            pointer-events: none;
+            bottom: 10px;
+            left: 30px;
+            font-size: 60px;
+            color: rgba(255, 255, 255, 0.03);
+            animation: spin 15s linear infinite reverse;
         }
 
         .hero-title {
             color: white;
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             font-weight: 800;
             letter-spacing: -0.5px;
             margin: 0;
             position: relative;
             z-index: 1;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.1);
         }
 
         .hero-title span {
-            background: linear-gradient(135deg, #FDE68A, #FCD34D);
+            background: linear-gradient(135deg, #E5F8F0, #ECFFBE);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
         .hero-subtitle {
-            color: rgba(255, 255, 255, 0.85);
-            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
             margin-top: 0.5rem;
-            font-weight: 400;
+            font-weight: 300;
             position: relative;
             z-index: 1;
+            letter-spacing: 0.5px;
+        }
+
+        .hero-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
         }
 
         /* ==========================================================
-           Section Headers
-        ========================================================== */
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #1F2937;
-            margin: 1.5rem 0 1rem 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .section-title-emoji { font-size: 1.4rem; }
-
-        /* ==========================================================
-           Cards
+           Cards - Glassmorphism
         ========================================================== */
         .card {
-            background: white;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             padding: 1.5rem;
-            border-radius: 16px;
-            border: 1px solid #F3F4F6;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(74, 105, 206, 0.06);
             margin-bottom: 1.5rem;
-            transition: all 0.25s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .card:hover {
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            border-color: #E5E7EB;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(74, 105, 206, 0.1);
+            border-color: rgba(188, 164, 245, 0.3);
         }
 
         /* ==========================================================
            Text Area
         ========================================================== */
         .stTextArea textarea {
-            background: white !important;
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(8px) !important;
             color: #1F2937 !important;
-            border: 2px solid #E5E7EB !important;
-            border-radius: 14px !important;
-            padding: 16px !important;
+            border: 2px solid rgba(188, 164, 245, 0.2) !important;
+            border-radius: 16px !important;
+            padding: 18px !important;
             font-size: 15px !important;
             font-family: 'Inter', sans-serif !important;
             line-height: 1.7 !important;
-            transition: all 0.25s ease !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 2px 8px rgba(74, 105, 206, 0.04) !important;
         }
 
         .stTextArea textarea:focus {
-            border-color: #6366F1 !important;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08), 0 4px 12px rgba(99, 102, 241, 0.04) !important;
-        }
-
-        .stTextArea textarea::placeholder {
-            color: #9CA3AF !important;
+            border-color: var(--royal-blue) !important;
+            box-shadow: 0 0 0 4px rgba(74, 105, 206, 0.08), 0 4px 16px rgba(74, 105, 206, 0.06) !important;
+            background: rgba(255, 255, 255, 0.95) !important;
         }
 
         /* ==========================================================
-           Button
+           Button - Animated Gradient
         ========================================================== */
         .stButton > button {
             width: 100%;
-            height: 54px;
+            height: 56px;
             border: none;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--royal-blue) 0%, var(--mauve) 50%, var(--sky-blue) 100%);
+            background-size: 200% 200%;
             color: white;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             font-family: 'Inter', sans-serif;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25);
-            letter-spacing: 0.3px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(74, 105, 206, 0.25);
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stButton > button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
         }
 
         .stButton > button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 8px 32px rgba(74, 105, 206, 0.35);
+            background-position: 100% 100%;
         }
 
-        .stButton > button:active {
-            transform: translateY(0px);
+        .stButton > button:hover::before {
+            opacity: 1;
         }
 
         /* ==========================================================
-           Metric Cards
+           Metric Cards - 3D Tilt Effect
         ========================================================== */
         .metric-grid {
             display: grid;
@@ -307,26 +365,50 @@ def load_css():
         }
 
         .metric-item {
-            background: white;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             padding: 1.25rem 1rem;
-            border-radius: 14px;
-            border: 1px solid #F3F4F6;
+            border-radius: 16px;
+            border: 1px solid rgba(188, 164, 245, 0.15);
             text-align: center;
-            transition: all 0.25s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--royal-blue), var(--mauve), var(--sky-blue));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .metric-item:hover::before {
+            opacity: 1;
         }
 
         .metric-item:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            border-color: #E5E7EB;
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(74, 105, 206, 0.1);
+            border-color: rgba(188, 164, 245, 0.3);
         }
 
-        .metric-icon { font-size: 1.5rem; margin-bottom: 4px; }
+        .metric-icon { font-size: 1.6rem; margin-bottom: 4px; display: block; }
 
         .metric-number {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: 800;
-            color: #1F2937;
+            background: linear-gradient(135deg, var(--royal-blue), var(--mauve));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin: 4px 0;
             line-height: 1.2;
         }
@@ -338,38 +420,40 @@ def load_css():
         }
 
         /* ==========================================================
-           Tabs
+           Tabs - Modern Pill Style
         ========================================================== */
         .stTabs [data-baseweb="tab-list"] {
-            gap: 4px;
-            background: #F9FAFB;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             padding: 6px;
-            border-radius: 14px;
-            border: 1px solid #F3F4F6;
+            border-radius: 16px;
+            border: 1px solid rgba(188, 164, 245, 0.15);
             flex-wrap: wrap;
         }
 
         .stTabs [data-baseweb="tab"] {
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 0.6rem 1.2rem;
             font-weight: 500;
             font-size: 0.85rem;
             color: #6B7280;
             font-family: 'Inter', sans-serif;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             background: transparent;
             border: none;
         }
 
         .stTabs [data-baseweb="tab"]:hover {
-            background: rgba(255,255,255,0.7);
-            color: #1F2937;
+            background: rgba(255,255,255,0.6);
+            color: var(--royal-blue);
         }
 
         .stTabs [aria-selected="true"] {
-            background: white !important;
-            color: #6366F1 !important;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            background: linear-gradient(135deg, var(--royal-blue), var(--mauve)) !important;
+            color: white !important;
+            box-shadow: 0 4px 16px rgba(74, 105, 206, 0.15);
             font-weight: 600;
         }
 
@@ -377,54 +461,65 @@ def load_css():
            Result Boxes
         ========================================================== */
         .result-box {
-            background: #F9FAFB;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             padding: 1rem 1.25rem;
-            border-radius: 12px;
-            border-left: 4px solid #6366F1;
-            border-top: 1px solid #F3F4F6;
-            border-right: 1px solid #F3F4F6;
-            border-bottom: 1px solid #F3F4F6;
+            border-radius: 14px;
+            border-left: 4px solid var(--royal-blue);
+            border-top: 1px solid rgba(188, 164, 245, 0.15);
+            border-right: 1px solid rgba(188, 164, 245, 0.15);
+            border-bottom: 1px solid rgba(188, 164, 245, 0.15);
             margin-bottom: 0.75rem;
             color: #1F2937;
             font-size: 0.95rem;
             line-height: 1.6;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
         }
 
         .result-box:hover {
-            background: white;
-            border-left-color: #8B5CF6;
-            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.06);
+            background: rgba(255, 255, 255, 0.9);
+            border-left-color: var(--mauve);
+            transform: translateX(6px);
+            box-shadow: 0 4px 16px rgba(74, 105, 206, 0.06);
         }
 
+        /* ==========================================================
+           Token Boxes
+        ========================================================== */
         .token-box {
             display: inline-block;
-            background: #F3F4F6;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
             padding: 0.3rem 0.8rem;
             margin: 0.2rem;
-            border-radius: 8px;
-            border: 1px solid #E5E7EB;
+            border-radius: 10px;
+            border: 1px solid rgba(188, 164, 245, 0.15);
             font-size: 0.9rem;
             color: #1F2937;
             font-weight: 500;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
         }
 
         .token-box:hover {
-            background: #EEF2FF;
-            border-color: #C7D2FE;
+            background: rgba(74, 105, 206, 0.08);
+            border-color: var(--royal-blue);
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 105, 206, 0.08);
         }
 
         /* ==========================================================
            Quick Stats
         ========================================================== */
         .quick-stats {
-            background: white;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             padding: 1rem 1.25rem;
-            border-radius: 14px;
-            border: 1px solid #F3F4F6;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            border-radius: 16px;
+            border: 1px solid rgba(188, 164, 245, 0.15);
+            box-shadow: 0 2px 8px rgba(74, 105, 206, 0.04);
         }
 
         .quick-stats p {
@@ -434,58 +529,33 @@ def load_css():
         }
 
         .quick-stats strong {
-            color: #1F2937;
+            color: var(--royal-blue);
             font-weight: 600;
         }
 
         .common-words {
-            background: white;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             padding: 0.75rem 1.25rem;
-            border-radius: 12px;
+            border-radius: 14px;
             margin-top: 0.75rem;
-            border: 1px solid #F3F4F6;
+            border: 1px solid rgba(188, 164, 245, 0.15);
             color: #1F2937;
             font-size: 0.95rem;
         }
 
         .common-words strong {
-            color: #6366F1;
+            color: var(--royal-blue);
         }
 
-        /* ==========================================================
-           DataFrames
-        ========================================================== */
-        [data-testid="stDataFrame"] {
-            border-radius: 12px !important;
-            overflow: hidden !important;
-            border: 1px solid #F3F4F6 !important;
-        }
-
-        /* ==========================================================
-           Download Button
-        ========================================================== */
-        [data-testid="stDownloadButton"] > button {
-            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%) !important;
-            border-radius: 14px !important;
-            font-weight: 600 !important;
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2) !important;
-            height: 50px !important;
-            font-size: 15px !important;
-            color: white !important;
-            border: none !important;
-        }
-
-        [data-testid="stDownloadButton"] > button:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3) !important;
-        }
-
-        /* ==========================================================
-           Alerts
-        ========================================================== */
-        [data-testid="stAlert"] {
-            border-radius: 12px !important;
-            border: none !important;
+        .common-words span {
+            background: rgba(74, 105, 206, 0.06);
+            padding: 0.2rem 0.8rem;
+            border-radius: 12px;
+            display: inline-block;
+            margin: 0.15rem;
+            border: 1px solid rgba(188, 164, 245, 0.1);
         }
 
         /* ==========================================================
@@ -496,12 +566,15 @@ def load_css():
             color: #9CA3AF;
             padding: 1.5rem 0 0.5rem 0;
             font-size: 0.85rem;
-            border-top: 1px solid #F3F4F6;
+            border-top: 1px solid rgba(188, 164, 245, 0.15);
             margin-top: 2rem;
         }
 
         .footer span {
-            color: #6366F1;
+            background: linear-gradient(135deg, var(--royal-blue), var(--mauve));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-weight: 600;
         }
 
@@ -509,12 +582,12 @@ def load_css():
            Scrollbar
         ========================================================== */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #F3F4F6; border-radius: 10px; }
+        ::-webkit-scrollbar-track { background: rgba(188, 164, 245, 0.1); border-radius: 10px; }
         ::-webkit-scrollbar-thumb {
-            background: #D1D5DB;
+            background: linear-gradient(135deg, var(--royal-blue), var(--mauve));
             border-radius: 10px;
         }
-        ::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--royal-blue-dark); }
 
         /* ==========================================================
            Responsive
@@ -547,7 +620,6 @@ def download_nltk():
         "averaged_perceptron_tagger",
         "averaged_perceptron_tagger_eng"
     ]
-
     for package in packages:
         nltk.download(package, quiet=True)
 
@@ -560,47 +632,109 @@ def load_spacy():
 nlp = load_spacy()
 
 # --------------------------------------------------
-# SIDEBAR
-# --------------------------------------------------
-
-with st.sidebar:
-    st.markdown("""
-    <div class="sidebar-header">
-        <div class="sidebar-logo">🧠</div>
-        <div>
-            <div class="sidebar-title">NLP Toolkit</div>
-            <div class="sidebar-subtitle">v2.0</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("""
-    <div class="sidebar-section">
-        <div class="sidebar-section-title">Tech Stack</div>
-        <div class="tech-tags">
-            <span class="tech-tag primary">Python</span>
-            <span class="tech-tag pink">NLTK</span>
-            <span class="tech-tag purple">spaCy</span>
-            <span class="tech-tag cyan">Streamlit</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("""
-    <div class="sidebar-footer">
-        ⚡ Natural Language Processing made simple
-    </div>
-    """, unsafe_allow_html=True)
-
-# --------------------------------------------------
-# HERO HEADER
+# HERO WITH INTERACTIVE PARTICLES
 # --------------------------------------------------
 
 st.markdown("""
 <div class="hero-container">
+    <div class="hero-particles" id="heroParticles"></div>
     <h1 class="hero-title">🧠 Natural Language <span>Processing</span></h1>
     <p class="hero-subtitle">Analyze, understand, and extract insights from your text with advanced NLP techniques</p>
 </div>
+
+<script>
+    // Interactive particle animation for hero
+    (function() {
+        const container = document.getElementById('heroParticles');
+        if (!container) return;
+        
+        const canvas = document.createElement('canvas');
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        canvas.style.position = 'absolute';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        container.appendChild(canvas);
+        
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        const particles = [];
+        const colors = ['rgba(255,255,255,0.06)', 'rgba(255,255,255,0.04)', 'rgba(255,255,255,0.08)'];
+        
+        function resize() {
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            width = canvas.width;
+            height = canvas.height;
+        }
+        
+        resize();
+        window.addEventListener('resize', resize);
+        
+        for (let i = 0; i < 40; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                r: Math.random() * 2 + 1,
+                dx: (Math.random() - 0.5) * 0.5,
+                dy: (Math.random() - 0.5) * 0.5,
+                color: colors[Math.floor(Math.random() * colors.length)]
+            });
+        }
+        
+        let mouseX = -999, mouseY = -999;
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+        });
+        canvas.addEventListener('mouseleave', () => { mouseX = -999; mouseY = -999; });
+        
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            for (const p of particles) {
+                p.x += p.dx;
+                p.y += p.dy;
+                if (p.x < 0 || p.x > width) p.dx *= -1;
+                if (p.y < 0 || p.y > height) p.dy *= -1;
+                
+                const dMouse = Math.hypot(p.x - mouseX, p.y - mouseY);
+                if (dMouse < 100) {
+                    const ang = Math.atan2(p.y - mouseY, p.x - mouseX);
+                    p.x += Math.cos(ang) * 0.8;
+                    p.y += Math.sin(ang) * 0.8;
+                }
+                
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+            }
+            
+            // Draw connections
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const a = particles[i], b = particles[j];
+                    const dist = Math.hypot(a.x - b.x, a.y - b.y);
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(a.x, a.y);
+                        ctx.lineTo(b.x, b.y);
+                        ctx.strokeStyle = `rgba(255,255,255,${0.03 * (1 - dist/120)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+    })();
+</script>
 """, unsafe_allow_html=True)
 
 # --------------------------------------------------
@@ -608,8 +742,9 @@ st.markdown("""
 # --------------------------------------------------
 
 st.markdown("""
-<div class="section-title">
-    <span class="section-title-emoji">✍️</span> Input Text
+<div style="display:flex;align-items:center;gap:10px;margin:1.5rem 0 1rem 0;">
+    <span style="font-size:1.5rem;">✍️</span>
+    <span style="font-size:1.3rem;font-weight:700;color:#1F2937;">Input Text</span>
 </div>
 """, unsafe_allow_html=True)
 
@@ -622,7 +757,7 @@ text = st.text_area(
 
 col_btn1, col_btn2, col_btn3 = st.columns([1, 2, 1])
 with col_btn2:
-    analyze = st.button("🚀 Analyze Text", use_container_width=True)
+    analyze = st.button("✨ Analyze Text", use_container_width=True)
 
 # --------------------------------------------------
 # ANALYSIS
@@ -634,48 +769,32 @@ if analyze:
         st.stop()
     
     with st.spinner("🔄 Processing your text..."):
-        # Sentence Segmentation
+        time.sleep(0.3)
         sentences = sent_tokenize(text)
-        
-        # Word Tokenization
         words = word_tokenize(text)
-        
-        # Stopword Removal
         stop_words = set(stopwords.words('english'))
         filtered_words = [word for word in words if word.lower() not in stop_words]
         
-        # Stemming
         stemmer = PorterStemmer()
         stemmed_words = [stemmer.stem(word) for word in filtered_words]
         
-        # Lemmatization
         lemmatizer = WordNetLemmatizer()
         lemmatized_words = [lemmatizer.lemmatize(word) for word in filtered_words]
         
-        # POS Tagging
         pos_tags = nltk.pos_tag(words)
-        
-        # NER
         doc = nlp(text)
         entities = [(ent.text, ent.label_) for ent in doc.ents]
-        
-        # Dependency Parsing
         dependencies = [(token.text, token.dep_, token.head.text) for token in doc]
-        
-        # Chunking
         chunks = [chunk.text for chunk in doc.noun_chunks]
         
-        # Additional stats
         avg_word_length = sum(len(word) for word in words) / len(words) if words else 0
         unique_words = len(set(words))
         char_count = len(text)
-        
-        # Most common words
         word_freq = Counter([word.lower() for word in words if word.isalpha()])
         most_common = word_freq.most_common(5)
     
     # --------------------------------------------------
-    # ORIGINAL TEXT
+    # RESULTS
     # --------------------------------------------------
     
     st.markdown("---")
@@ -683,16 +802,18 @@ if analyze:
     col1, col2 = st.columns([2, 1])
     with col1:
         st.markdown("""
-        <div class="section-title">
-            <span class="section-title-emoji">📄</span> Original Text
+        <div style="display:flex;align-items:center;gap:10px;margin:0 0 0.75rem 0;">
+            <span style="font-size:1.3rem;">📄</span>
+            <span style="font-size:1.2rem;font-weight:700;color:#1F2937;">Original Text</span>
         </div>
         """, unsafe_allow_html=True)
         st.markdown(f'<div class="result-box">{text}</div>', unsafe_allow_html=True)
     
     with col2:
         st.markdown("""
-        <div class="section-title">
-            <span class="section-title-emoji">📊</span> Quick Stats
+        <div style="display:flex;align-items:center;gap:10px;margin:0 0 0.75rem 0;">
+            <span style="font-size:1.3rem;">📊</span>
+            <span style="font-size:1.2rem;font-weight:700;color:#1F2937;">Quick Stats</span>
         </div>
         """, unsafe_allow_html=True)
         st.markdown(f"""
@@ -701,35 +822,36 @@ if analyze:
             <p><strong>Words:</strong> {len(words):,}</p>
             <p><strong>Sentences:</strong> {len(sentences):,}</p>
             <p><strong>Avg. Word Length:</strong> {avg_word_length:.1f}</p>
+            <p><strong>Unique Words:</strong> {unique_words:,}</p>
         </div>
         """, unsafe_allow_html=True)
     
     # --------------------------------------------------
-    # METRICS
+    # METRICS WITH 3D TILT EFFECT
     # --------------------------------------------------
     
     st.markdown("---")
     st.markdown("""
-    <div class="section-title">
-        <span class="section-title-emoji">📈</span> Analysis Metrics
+    <div style="display:flex;align-items:center;gap:10px;margin:0 0 1rem 0;">
+        <span style="font-size:1.3rem;">📈</span>
+        <span style="font-size:1.2rem;font-weight:700;color:#1F2937;">Analysis Metrics</span>
     </div>
     """, unsafe_allow_html=True)
     
     metrics_data = [
         ("📝", "Total Words", len(words)),
         ("📑", "Sentences", len(sentences)),
-        ("🧹", "After Stopwords", len(filtered_words)),
+        ("🧹", "Stopwords Removed", len(words) - len(filtered_words)),
         ("🏷️", "Named Entities", len(entities)),
         ("🔗", "Noun Phrases", len(chunks)),
         ("✨", "Unique Words", unique_words),
     ]
     
-    # Create metric cards using HTML/CSS with animation
     metrics_html = '<div class="metric-grid">'
     for icon, label, value in metrics_data:
         metrics_html += f"""
         <div class="metric-item" data-value="{value}">
-            <div class="metric-icon">{icon}</div>
+            <span class="metric-icon">{icon}</span>
             <div class="metric-number" data-target="{value}">0</div>
             <div class="metric-label">{label}</div>
         </div>
@@ -739,11 +861,12 @@ if analyze:
     metrics_html += """
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Animate numbers
         const items = document.querySelectorAll('.metric-item');
-        items.forEach((item, index) => {
+        items.forEach((item) => {
             const target = parseInt(item.dataset.value) || 0;
             const numEl = item.querySelector('.metric-number');
-            const duration = 1000;
+            const duration = 1200;
             const startTime = performance.now();
             
             function animate(ts) {
@@ -753,6 +876,20 @@ if analyze:
                 if (progress < 1) requestAnimationFrame(animate);
             }
             requestAnimationFrame(animate);
+            
+            // 3D Tilt Effect
+            item.addEventListener('mousemove', (e) => {
+                const rect = item.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                const rotateX = (-y / rect.height) * 8;
+                const rotateY = (x / rect.width) * 8;
+                item.style.transform = 
+                    `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+            });
+            item.addEventListener('mouseleave', () => {
+                item.style.transform = 'perspective(800px) rotateX(0) rotateY(0) translateY(0)';
+            });
         });
     });
     </script>
@@ -765,7 +902,7 @@ if analyze:
         st.markdown(f"""
         <div class="common-words">
             <strong>🔥 Most Common Words:</strong> 
-            {', '.join([f'"{word}" ({count})' for word, count in most_common])}
+            {', '.join([f'<span>{word} ({count})</span>' for word, count in most_common])}
         </div>
         """, unsafe_allow_html=True)
     
@@ -787,14 +924,12 @@ if analyze:
         "📦 Chunking"
     ])
     
-    # TAB 1 - Sentences
     with tab1:
         st.subheader("📑 Sentence Segmentation")
         st.caption("Breaking text into individual sentences")
         for i, sent in enumerate(sentences, 1):
             st.markdown(f'<div class="result-box"><strong>{i}.</strong> {sent}</div>', unsafe_allow_html=True)
     
-    # TAB 2 - Tokens
     with tab2:
         st.subheader("🔤 Word Tokenization")
         st.caption("Breaking text into individual words/tokens")
@@ -802,7 +937,6 @@ if analyze:
         st.markdown(f'<div style="padding: 0.5rem 0;">{tokens_html}</div>', unsafe_allow_html=True)
         st.caption(f"Total tokens: {len(words)}")
     
-    # TAB 3 - Stop Words
     with tab3:
         st.subheader("🚫 Stop Word Removal")
         st.caption("Common words removed to focus on meaningful content")
@@ -810,77 +944,42 @@ if analyze:
         st.markdown(f'<div style="padding: 0.5rem 0;">{tokens_html}</div>', unsafe_allow_html=True)
         st.caption(f"Tokens after stopword removal: {len(filtered_words)} (removed {len(words) - len(filtered_words)} stopwords)")
     
-    # TAB 4 - Stemming
     with tab4:
         st.subheader("🌱 Stemming")
         st.caption("Reducing words to their root form using Porter Stemmer")
         tokens_html = " ".join([f'<span class="token-box">{word}</span>' for word in stemmed_words])
         st.markdown(f'<div style="padding: 0.5rem 0;">{tokens_html}</div>', unsafe_allow_html=True)
     
-    # TAB 5 - Lemmatization
     with tab5:
         st.subheader("📖 Lemmatization")
         st.caption("Reducing words to their dictionary form using WordNet")
         tokens_html = " ".join([f'<span class="token-box">{word}</span>' for word in lemmatized_words])
         st.markdown(f'<div style="padding: 0.5rem 0;">{tokens_html}</div>', unsafe_allow_html=True)
     
-    # TAB 6 - POS Tagging
     with tab6:
         st.subheader("🏷️ Part-of-Speech Tagging")
         st.caption("Grammatical tags assigned to each word")
-        
         pos_df = pd.DataFrame(pos_tags, columns=["Word", "POS Tag"])
-        st.dataframe(
-            pos_df,
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "Word": st.column_config.TextColumn("Word"),
-                "POS Tag": st.column_config.TextColumn("POS Tag", help="Part of Speech tag")
-            }
-        )
+        st.dataframe(pos_df, use_container_width=True, hide_index=True)
     
-    # TAB 7 - NER
     with tab7:
         st.subheader("👤 Named Entity Recognition")
         st.caption("Identifying named entities in text (people, organizations, locations, etc.)")
-        
         if entities:
             ner_df = pd.DataFrame(entities, columns=["Entity", "Label"])
-            st.dataframe(
-                ner_df,
-                use_container_width=True,
-                hide_index=True,
-                column_config={
-                    "Entity": st.column_config.TextColumn("Entity"),
-                    "Label": st.column_config.TextColumn("Entity Type")
-                }
-            )
+            st.dataframe(ner_df, use_container_width=True, hide_index=True)
         else:
             st.info("ℹ️ No named entities found in the text.")
     
-    # TAB 8 - Dependency Parsing
     with tab8:
         st.subheader("🔗 Dependency Parsing")
         st.caption("Grammatical relationships between words in the sentence")
-        
         dep_df = pd.DataFrame(dependencies, columns=["Word", "Dependency", "Head"])
-        st.dataframe(
-            dep_df,
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "Word": st.column_config.TextColumn("Word"),
-                "Dependency": st.column_config.TextColumn("Dependency Relation"),
-                "Head": st.column_config.TextColumn("Head Word")
-            }
-        )
+        st.dataframe(dep_df, use_container_width=True, hide_index=True)
     
-    # TAB 9 - Chunking
     with tab9:
         st.subheader("📦 Noun Phrase Chunking")
         st.caption("Extracting noun phrases from the text")
-        
         if chunks:
             for chunk in chunks:
                 st.markdown(f'<div class="result-box">✅ {chunk}</div>', unsafe_allow_html=True)
@@ -981,6 +1080,6 @@ Analysis completed successfully!
 st.markdown("""
 <div class="footer">
     Built with ❤️ using Streamlit, NLTK & spaCy • 
-    <span>Natural Language Processing Toolkit</span>
+    <span>NLP Toolkit</span>
 </div>
 """, unsafe_allow_html=True)
