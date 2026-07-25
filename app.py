@@ -12,10 +12,9 @@ import spacy
 # --------------------------------------------------
 
 st.set_page_config(
-    page_title="NLP Toolkit - Professional Text Analysis",
+    page_title="Natural Language Processing Toolkit",
     page_icon="🧠",
-    layout="wide",
-    initial_sidebar_state="collapsed"
+    layout="centered"
 )
 
 # --------------------------------------------------
@@ -220,14 +219,15 @@ def load_css():
         .metric-card {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(8px);
-            padding: 1.25rem;
-            border-radius: 16px;
+            padding: 20px;
+            border-radius: 18px;
             border: 1px solid rgba(255, 255, 255, 0.8);
             text-align: center;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 2px 8px rgba(0,0,0,0.03);
             position: relative;
             overflow: hidden;
+            margin-bottom:18px;
         }
         
         .metric-card::before {
@@ -451,6 +451,44 @@ def load_css():
                 font-size: 0.8rem;
             }
         }
+
+           /* Mobile Responsive */
+@media (max-width: 768px){
+    h1,h2,h3{ color:#1f2937;}
+
+    h1{
+        font-size:2rem !important;
+        text-align:center;
+    }
+
+    h2{
+        font-size:1.5rem !important;
+    }
+
+    h3{
+        font-size:1.2rem !important;
+    }
+
+    .block-container{
+        padding:1rem !important;
+    }
+
+    .stTextArea textarea{
+        min-height:180px !important;
+        font-size:16px !important;
+    }
+
+    .stButton button{
+        width:100%;
+        font-size:18px;
+        height:55px;
+    }
+
+    div[data-testid="stMetric"]{
+        margin-bottom:12px;
+    }
+}
+
     </style>
     """, unsafe_allow_html=True)
 
