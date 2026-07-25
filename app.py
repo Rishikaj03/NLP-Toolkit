@@ -1,11 +1,14 @@
 import streamlit as st
 import nltk
-import spacy
 import pandas as pd
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer, WordNetLemmatizer
 from collections import Counter
+import os
+import spacy
+from spacy.cli import download
+
 
 # --------------------------------------------------
 # PAGE CONFIG
@@ -479,12 +482,13 @@ download_nltk()
 
 @st.cache_resource
 def load_spacy():
+    model = "en_core_web_sm"
+
     try:
-        return spacy.load("en_core_web_sm")
+        return spacy.load(model)
     except OSError:
-        from spacy.cli import download
-        download("en_core_web_sm")
-        return spacy.load("en_core_web_sm")
+        download(model)
+        return spacy.load(model)
 
 nlp = load_spacy()
 
