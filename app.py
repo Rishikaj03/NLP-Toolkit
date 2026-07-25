@@ -7,8 +7,6 @@ from nltk.stem import PorterStemmer, WordNetLemmatizer
 from collections import Counter
 import os
 import spacy
-from spacy.cli import download
-
 
 # --------------------------------------------------
 # PAGE CONFIG
@@ -482,13 +480,7 @@ download_nltk()
 
 @st.cache_resource
 def load_spacy():
-    model = "en_core_web_sm"
-
-    try:
-        return spacy.load(model)
-    except OSError:
-        download(model)
-        return spacy.load(model)
+    return spacy.load("en_core_web_sm")
 
 nlp = load_spacy()
 
