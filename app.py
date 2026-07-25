@@ -462,22 +462,29 @@ load_css()
 
 @st.cache_resource
 def download_nltk():
-    try:
-        nltk.data.find('tokenizers/punkt')
-    except LookupError:
-        nltk.download("punkt")
-        nltk.download("punkt_tab")
-        nltk.download("stopwords")
-        nltk.download("wordnet")
-        nltk.download("omw-1.4")
-        nltk.download("averaged_perceptron_tagger")
-        nltk.download("averaged_perceptron_tagger_eng")
+    packages = [
+        "punkt",
+        "punkt_tab",
+        "stopwords",
+        "wordnet",
+        "omw-1.4",
+        "averaged_perceptron_tagger",
+        "averaged_perceptron_tagger_eng"
+    ]
+
+    for package in packages:
+        nltk.download(package, quiet=True)
 
 download_nltk()
 
 @st.cache_resource
 def load_spacy():
-    return spacy.load("en_core_web_sm")
+    try:
+        return spacy.load("en_core_web_sm")
+    except OSError:
+        from spacy.cli import download
+        download("en_core_web_sm")
+        return spacy.load("en_core_web_sm")
 
 nlp = load_spacy()
 
