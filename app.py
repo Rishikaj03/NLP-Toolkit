@@ -7,485 +7,566 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer, WordNetLemmatizer
 from collections import Counter
 import spacy
+import time
 
 # --------------------------------------------------
 # PAGE CONFIG
 # --------------------------------------------------
 
 st.set_page_config(
-    page_title="Natural Language Processing Toolkit",
+    page_title="NLP Toolkit - Creative Edition",
     page_icon="🧠",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # --------------------------------------------------
-# CUSTOM CSS FOR MODERN UI
+# CUSTOM CSS WITH YOUR COLOR PALETTE
 # --------------------------------------------------
+
 def load_css():
     st.markdown("""
     <style>
         /* ==========================================================
            Google Fonts
         ========================================================== */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700&display=swap');
 
         /* ==========================================================
-           Reset & Base
+           Color Variables
         ========================================================== */
-        html, body, [class*="css"] {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            font-size: 15px;
-            line-height: 1.6;
+        :root {
+            --honeydew: #E5F8F0;
+            --tea-green: #ECFFBE;
+            --mauve: #BCA4F5;
+            --sky-blue: #81CFFF;
+            --royal-blue: #4A69CE;
         }
 
         /* ==========================================================
-           Background - Clean gradient
+           Animated Background
         ========================================================== */
         .stApp {
-            background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%);
+            background: linear-gradient(135deg, #E5F8F0 0%, #ECFFBE 30%, #BCA4F5 70%, #81CFFF 100%);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            position: relative;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .stApp::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(188, 164, 245, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(129, 207, 255, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
         }
 
         header { visibility: hidden; }
         footer { visibility: hidden; }
 
         .block-container {
-            max-width: 1300px;
-            padding-top: 2rem;
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            padding-top: 1.5rem;
             padding-bottom: 2rem;
         }
 
         /* ==========================================================
-           Sidebar - Clean and minimal
+           Floating Particles
         ========================================================== */
-        section[data-testid="stSidebar"] {
-            background: #FFFFFF;
-            border-right: 1px solid #E5E7EB;
-            padding: 1.5rem 1rem;
-        }
-
-        section[data-testid="stSidebar"] .sidebar-content {
-            display: flex;
-            flex-direction: column;
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
-        }
-
-        .sidebar-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #F3F4F6;
-        }
-
-        .sidebar-logo {
-            font-size: 2rem;
-            background: linear-gradient(135deg, #6366F1, #8B5CF6);
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-        }
-
-        .sidebar-title {
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: #1F2937;
-            letter-spacing: -0.3px;
-        }
-
-        .sidebar-subtitle {
-            font-size: 0.8rem;
-            color: #6B7280;
-            margin-top: -2px;
-        }
-
-        .sidebar-section {
-            margin: 1.5rem 0 1rem 0;
-        }
-
-        .sidebar-section-title {
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #9CA3AF;
-            margin-bottom: 0.75rem;
-        }
-
-        .tech-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 4px;
-        }
-
-        .tech-tag {
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            background: #F3F4F6;
-            color: #4B5563;
-            border: 1px solid #E5E7EB;
-        }
-
-        .tech-tag.primary { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
-        .tech-tag.pink { background: #FDF2F8; color: #DB2777; border-color: #FBCFE8; }
-        .tech-tag.cyan { background: #ECFEFF; color: #0891B2; border-color: #A5F3FC; }
-        .tech-tag.purple { background: #F5F3FF; color: #7C3AED; border-color: #DDD6FE; }
-
-        .sidebar-footer {
-            margin-top: auto;
-            padding-top: 1rem;
-            border-top: 1px solid #F3F4F6;
-            font-size: 0.75rem;
-            color: #9CA3AF;
+            pointer-events: none;
+            z-index: 0;
         }
 
         /* ==========================================================
-           Header Hero
+           Glass Morphism Header
         ========================================================== */
-        .hero-container {
-            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #EC4899 100%);
-            padding: 2.5rem 2.5rem 2rem 2.5rem;
-            border-radius: 20px;
+        .glass-header {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 2rem 2.5rem;
             margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(74, 105, 206, 0.1);
+            animation: floatIn 0.8s ease-out;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(79, 70, 229, 0.15);
         }
 
-        .hero-container::before {
-            content: '';
+        .glass-header::before {
+            content: '✦';
             position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 400px;
-            height: 400px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50%;
-            pointer-events: none;
+            top: -30px;
+            right: 30px;
+            font-size: 120px;
+            color: rgba(188, 164, 245, 0.15);
+            animation: spin 20s linear infinite;
         }
 
-        .hero-container::after {
-            content: '';
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .glass-header::after {
+            content: '✦';
             position: absolute;
-            bottom: -40%;
-            left: -10%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 50%;
-            pointer-events: none;
+            bottom: -40px;
+            left: 20px;
+            font-size: 150px;
+            color: rgba(129, 207, 255, 0.12);
+            animation: spin 25s linear infinite reverse;
         }
 
-        .hero-title {
-            color: white;
-            font-size: 2.5rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
+        .header-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.2rem;
+            font-weight: 700;
+            color: #4A69CE;
             margin: 0;
+            text-align: center;
             position: relative;
             z-index: 1;
+            animation: titleGlow 3s ease-in-out infinite;
         }
 
-        .hero-title span {
-            background: linear-gradient(135deg, #FDE68A, #FCD34D);
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 20px rgba(74, 105, 206, 0.1); }
+            50% { text-shadow: 0 0 40px rgba(74, 105, 206, 0.2); }
+        }
+
+        .header-title span {
+            background: linear-gradient(135deg, #4A69CE, #BCA4F5);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .hero-subtitle {
-            color: rgba(255, 255, 255, 0.85);
-            font-size: 1.05rem;
-            margin-top: 0.5rem;
+        .header-subtitle {
+            text-align: center;
+            color: #4A69CE;
+            font-size: 1.1rem;
             font-weight: 400;
+            margin-top: 0.3rem;
             position: relative;
             z-index: 1;
+            opacity: 0.8;
         }
 
         /* ==========================================================
-           Section Headers
+           Glass Cards
         ========================================================== */
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #1F2937;
-            margin: 1.5rem 0 1rem 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 24px;
+            padding: 1.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 32px rgba(74, 105, 206, 0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: cardFade 0.6s ease-out;
         }
 
-        .section-title-emoji { font-size: 1.4rem; }
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 48px rgba(74, 105, 206, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        @keyframes cardFade {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         /* ==========================================================
-           Cards
-        ========================================================== */
-        .card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 16px;
-            border: 1px solid #F3F4F6;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-            margin-bottom: 1.5rem;
-            transition: all 0.25s ease;
-        }
-
-        .card:hover {
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            border-color: #E5E7EB;
-        }
-
-        /* ==========================================================
-           Text Area
+           Text Area - Glass Input
         ========================================================== */
         .stTextArea textarea {
-            background: white !important;
-            color: #1F2937 !important;
-            border: 2px solid #E5E7EB !important;
-            border-radius: 14px !important;
-            padding: 16px !important;
+            background: rgba(255, 255, 255, 0.3) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            color: #4A69CE !important;
+            border: 2px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 20px !important;
+            padding: 18px !important;
             font-size: 15px !important;
             font-family: 'Inter', sans-serif !important;
             line-height: 1.7 !important;
-            transition: all 0.25s ease !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 16px rgba(74, 105, 206, 0.05) !important;
         }
 
         .stTextArea textarea:focus {
-            border-color: #6366F1 !important;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08), 0 4px 12px rgba(99, 102, 241, 0.04) !important;
+            border-color: #4A69CE !important;
+            box-shadow: 0 0 0 4px rgba(74, 105, 206, 0.08), 0 8px 32px rgba(74, 105, 206, 0.1) !important;
+            background: rgba(255, 255, 255, 0.4) !important;
         }
 
         .stTextArea textarea::placeholder {
-            color: #9CA3AF !important;
+            color: rgba(74, 105, 206, 0.4) !important;
         }
 
         /* ==========================================================
-           Button
+           Button - Creative Gradient
         ========================================================== */
         .stButton > button {
             width: 100%;
-            height: 54px;
+            height: 58px;
             border: none;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            border-radius: 30px;
+            background: linear-gradient(135deg, #4A69CE 0%, #BCA4F5 50%, #81CFFF 100%);
+            background-size: 200% 200%;
             color: white;
-            font-size: 16px;
-            font-weight: 600;
+            font-size: 17px;
+            font-weight: 700;
             font-family: 'Inter', sans-serif;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25);
-            letter-spacing: 0.3px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 24px rgba(74, 105, 206, 0.25);
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stButton > button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.6s ease;
         }
 
         .stButton > button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 40px rgba(74, 105, 206, 0.35);
+            background-position: 100% 100%;
+        }
+
+        .stButton > button:hover::before {
+            left: 100%;
         }
 
         .stButton > button:active {
-            transform: translateY(0px);
+            transform: translateY(0px) scale(0.98);
         }
 
         /* ==========================================================
-           Metric Cards
+           Metric Cards - Creative
         ========================================================== */
         .metric-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 14px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
             margin: 0.5rem 0 1rem 0;
         }
 
         .metric-item {
-            background: white;
-            padding: 1.25rem 1rem;
-            border-radius: 14px;
-            border: 1px solid #F3F4F6;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 1.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             text-align: center;
-            transition: all 0.25s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4A69CE, #BCA4F5, #81CFFF);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .metric-item:hover::before {
+            opacity: 1;
         }
 
         .metric-item:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            border-color: #E5E7EB;
+            transform: translateY(-6px) scale(1.02);
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 12px 40px rgba(74, 105, 206, 0.15);
         }
 
-        .metric-icon { font-size: 1.5rem; margin-bottom: 4px; }
+        .metric-icon { 
+            font-size: 1.8rem; 
+            margin-bottom: 4px;
+            display: inline-block;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        .metric-item:nth-child(2) .metric-icon { animation-delay: 0.2s; }
+        .metric-item:nth-child(3) .metric-icon { animation-delay: 0.4s; }
+        .metric-item:nth-child(4) .metric-icon { animation-delay: 0.6s; }
+        .metric-item:nth-child(5) .metric-icon { animation-delay: 0.8s; }
+        .metric-item:nth-child(6) .metric-icon { animation-delay: 1s; }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
 
         .metric-number {
-            font-size: 2rem;
+            font-size: 2.4rem;
             font-weight: 800;
-            color: #1F2937;
+            background: linear-gradient(135deg, #4A69CE, #BCA4F5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin: 4px 0;
             line-height: 1.2;
         }
 
         .metric-label {
             font-size: 0.8rem;
-            color: #6B7280;
+            color: #4A69CE;
             font-weight: 500;
+            opacity: 0.8;
         }
 
         /* ==========================================================
-           Tabs
+           Tabs - Creative
         ========================================================== */
         .stTabs [data-baseweb="tab-list"] {
-            gap: 4px;
-            background: #F9FAFB;
-            padding: 6px;
-            border-radius: 14px;
-            border: 1px solid #F3F4F6;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             flex-wrap: wrap;
         }
 
         .stTabs [data-baseweb="tab"] {
-            border-radius: 10px;
-            padding: 0.6rem 1.2rem;
+            border-radius: 14px;
+            padding: 0.7rem 1.4rem;
             font-weight: 500;
             font-size: 0.85rem;
-            color: #6B7280;
+            color: #4A69CE;
             font-family: 'Inter', sans-serif;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             background: transparent;
             border: none;
+            opacity: 0.6;
         }
 
         .stTabs [data-baseweb="tab"]:hover {
-            background: rgba(255,255,255,0.7);
-            color: #1F2937;
+            background: rgba(255, 255, 255, 0.2);
+            opacity: 1;
+            transform: translateY(-2px);
         }
 
         .stTabs [aria-selected="true"] {
-            background: white !important;
-            color: #6366F1 !important;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            background: rgba(255, 255, 255, 0.3) !important;
+            color: #4A69CE !important;
+            box-shadow: 0 4px 16px rgba(74, 105, 206, 0.1);
             font-weight: 600;
+            opacity: 1;
+            backdrop-filter: blur(8px);
         }
 
         /* ==========================================================
            Result Boxes
         ========================================================== */
         .result-box {
-            background: #F9FAFB;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             padding: 1rem 1.25rem;
-            border-radius: 12px;
-            border-left: 4px solid #6366F1;
-            border-top: 1px solid #F3F4F6;
-            border-right: 1px solid #F3F4F6;
-            border-bottom: 1px solid #F3F4F6;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             margin-bottom: 0.75rem;
-            color: #1F2937;
+            color: #4A69CE;
             font-size: 0.95rem;
             line-height: 1.6;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            border-left: 4px solid #BCA4F5;
         }
 
         .result-box:hover {
-            background: white;
-            border-left-color: #8B5CF6;
-            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.06);
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateX(6px);
+            border-left-color: #4A69CE;
         }
 
         .token-box {
             display: inline-block;
-            background: #F3F4F6;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
             padding: 0.3rem 0.8rem;
             margin: 0.2rem;
-            border-radius: 8px;
-            border: 1px solid #E5E7EB;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             font-size: 0.9rem;
-            color: #1F2937;
+            color: #4A69CE;
             font-weight: 500;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .token-box:hover {
-            background: #EEF2FF;
-            border-color: #C7D2FE;
-            transform: translateY(-2px);
+            background: rgba(74, 105, 206, 0.15);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 4px 16px rgba(74, 105, 206, 0.15);
         }
 
         /* ==========================================================
            Quick Stats
         ========================================================== */
         .quick-stats {
-            background: white;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             padding: 1rem 1.25rem;
-            border-radius: 14px;
-            border: 1px solid #F3F4F6;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 16px rgba(74, 105, 206, 0.05);
         }
 
         .quick-stats p {
             margin: 0.4rem 0;
-            color: #4B5563;
+            color: #4A69CE;
             font-size: 0.95rem;
         }
 
         .quick-stats strong {
-            color: #1F2937;
-            font-weight: 600;
+            color: #4A69CE;
+            font-weight: 700;
         }
 
         .common-words {
-            background: white;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             padding: 0.75rem 1.25rem;
-            border-radius: 12px;
+            border-radius: 16px;
             margin-top: 0.75rem;
-            border: 1px solid #F3F4F6;
-            color: #1F2937;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #4A69CE;
             font-size: 0.95rem;
         }
 
         .common-words strong {
-            color: #6366F1;
+            color: #4A69CE;
         }
 
-        /* ==========================================================
-           DataFrames
-        ========================================================== */
-        [data-testid="stDataFrame"] {
-            border-radius: 12px !important;
-            overflow: hidden !important;
-            border: 1px solid #F3F4F6 !important;
+        .common-words span {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            margin: 0.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .common-words span:hover {
+            background: rgba(74, 105, 206, 0.15);
+            transform: scale(1.05);
         }
 
         /* ==========================================================
            Download Button
         ========================================================== */
         [data-testid="stDownloadButton"] > button {
-            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%) !important;
-            border-radius: 14px !important;
+            background: linear-gradient(135deg, #4A69CE, #BCA4F5) !important;
+            border-radius: 30px !important;
             font-weight: 600 !important;
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2) !important;
-            height: 50px !important;
+            box-shadow: 0 4px 20px rgba(74, 105, 206, 0.2) !important;
+            height: 52px !important;
             font-size: 15px !important;
             color: white !important;
             border: none !important;
+            transition: all 0.3s ease !important;
         }
 
         [data-testid="stDownloadButton"] > button:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3) !important;
+            transform: translateY(-3px) !important;
+            box-shadow: 0 8px 32px rgba(74, 105, 206, 0.3) !important;
         }
 
         /* ==========================================================
            Alerts
         ========================================================== */
         [data-testid="stAlert"] {
-            border-radius: 12px !important;
+            border-radius: 16px !important;
             border: none !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+        }
+
+        /* ==========================================================
+           Section Headers
+        ========================================================== */
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #4A69CE;
+            margin: 1.5rem 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .section-title-emoji { 
+            font-size: 1.5rem; 
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         /* ==========================================================
@@ -493,44 +574,119 @@ def load_css():
         ========================================================== */
         .footer {
             text-align: center;
-            color: #9CA3AF;
+            color: #4A69CE;
             padding: 1.5rem 0 0.5rem 0;
             font-size: 0.85rem;
-            border-top: 1px solid #F3F4F6;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
             margin-top: 2rem;
+            opacity: 0.7;
         }
 
         .footer span {
-            color: #6366F1;
             font-weight: 600;
+            background: linear-gradient(135deg, #4A69CE, #BCA4F5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         /* ==========================================================
            Scrollbar
         ========================================================== */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #F3F4F6; border-radius: 10px; }
+        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
         ::-webkit-scrollbar-thumb {
-            background: #D1D5DB;
+            background: linear-gradient(180deg, #4A69CE, #BCA4F5);
             border-radius: 10px;
         }
-        ::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+        ::-webkit-scrollbar-thumb:hover { background: #4A69CE; }
 
         /* ==========================================================
            Responsive
         ========================================================== */
         @media (max-width: 768px) {
-            .hero-title { font-size: 1.8rem; }
-            .hero-container { padding: 1.5rem; }
+            .header-title { font-size: 2rem; }
+            .glass-header { padding: 1.5rem; }
             .block-container { padding: 1rem !important; }
             .metric-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
-            .metric-number { font-size: 1.5rem; }
+            .metric-number { font-size: 1.6rem; }
             .stTabs [data-baseweb="tab"] { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
+        }
+
+        /* ==========================================================
+           Loading Animation
+        ========================================================== */
+        .custom-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(74, 105, 206, 0.1);
+            border-top: 4px solid #4A69CE;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
     """, unsafe_allow_html=True)
 
 load_css()
+
+# --------------------------------------------------
+# FLOATING PARTICLES (JavaScript)
+# --------------------------------------------------
+
+def add_particles():
+    components.html("""
+    <div id="particles-container" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;"></div>
+    <script>
+        (function() {
+            const container = document.getElementById('particles-container');
+            const colors = ['#E5F8F0', '#ECFFBE', '#BCA4F5', '#81CFFF', '#4A69CE'];
+            const particles = [];
+            
+            for (let i = 0; i < 40; i++) {
+                const particle = document.createElement('div');
+                const size = Math.random() * 6 + 3;
+                particle.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    background: ${colors[Math.floor(Math.random() * colors.length)]};
+                    border-radius: 50%;
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    opacity: ${Math.random() * 0.3 + 0.1};
+                    animation: floatParticle ${Math.random() * 20 + 15}s linear infinite;
+                    animation-delay: ${Math.random() * 10}s;
+                `;
+                container.appendChild(particle);
+                particles.push({
+                    el: particle,
+                    x: parseFloat(particle.style.left),
+                    y: parseFloat(particle.style.top),
+                    dx: (Math.random() - 0.5) * 0.02,
+                    dy: (Math.random() - 0.5) * 0.02,
+                });
+            }
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes floatParticle {
+                    0% { transform: translate(0, 0); opacity: 0.1; }
+                    50% { opacity: 0.3; }
+                    100% { transform: translate(${window.innerWidth * 0.1}px, ${window.innerHeight * 0.1}px); opacity: 0.1; }
+                }
+            `;
+            document.head.appendChild(style);
+        })();
+    </script>
+    """, height=0)
+
+add_particles()
 
 # --------------------------------------------------
 # CACHE RESOURCES
@@ -547,7 +703,6 @@ def download_nltk():
         "averaged_perceptron_tagger",
         "averaged_perceptron_tagger_eng"
     ]
-
     for package in packages:
         nltk.download(package, quiet=True)
 
@@ -560,46 +715,13 @@ def load_spacy():
 nlp = load_spacy()
 
 # --------------------------------------------------
-# SIDEBAR
-# --------------------------------------------------
-
-with st.sidebar:
-    st.markdown("""
-    <div class="sidebar-header">
-        <div class="sidebar-logo">🧠</div>
-        <div>
-            <div class="sidebar-title">NLP Toolkit</div>
-            <div class="sidebar-subtitle">v2.0</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("""
-    <div class="sidebar-section">
-        <div class="sidebar-section-title">Tech Stack</div>
-        <div class="tech-tags">
-            <span class="tech-tag primary">Python</span>
-            <span class="tech-tag pink">NLTK</span>
-            <span class="tech-tag purple">spaCy</span>
-            <span class="tech-tag cyan">Streamlit</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("""
-    <div class="sidebar-footer">
-        ⚡ Natural Language Processing made simple
-    </div>
-    """, unsafe_allow_html=True)
-
-# --------------------------------------------------
 # HERO HEADER
 # --------------------------------------------------
 
 st.markdown("""
-<div class="hero-container">
-    <h1 class="hero-title">🧠 Natural Language <span>Processing</span></h1>
-    <p class="hero-subtitle">Analyze, understand, and extract insights from your text with advanced NLP techniques</p>
+<div class="glass-header">
+    <h1 class="header-title">🧠 <span>NLP Toolkit</span></h1>
+    <p class="header-subtitle">✨ Advanced Natural Language Processing — Analyze, Understand, and Extract Insights</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -622,7 +744,7 @@ text = st.text_area(
 
 col_btn1, col_btn2, col_btn3 = st.columns([1, 2, 1])
 with col_btn2:
-    analyze = st.button("🚀 Analyze Text", use_container_width=True)
+    analyze = st.button("✨ Analyze Text", use_container_width=True)
 
 # --------------------------------------------------
 # ANALYSIS
@@ -633,7 +755,9 @@ if analyze:
         st.warning("⚠️ Please enter some text to analyze.")
         st.stop()
     
-    with st.spinner("🔄 Processing your text..."):
+    with st.spinner("🧠 Analyzing your text..."):
+        time.sleep(0.5)
+        
         # Sentence Segmentation
         sentences = sent_tokenize(text)
         
@@ -724,7 +848,7 @@ if analyze:
         ("✨", "Unique Words", unique_words),
     ]
     
-    # Create metric cards using HTML/CSS with animation
+    # Create metric cards with animation
     metrics_html = '<div class="metric-grid">'
     for icon, label, value in metrics_data:
         metrics_html += f"""
@@ -740,10 +864,10 @@ if analyze:
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const items = document.querySelectorAll('.metric-item');
-        items.forEach((item, index) => {
+        items.forEach((item) => {
             const target = parseInt(item.dataset.value) || 0;
             const numEl = item.querySelector('.metric-number');
-            const duration = 1000;
+            const duration = 1200;
             const startTime = performance.now();
             
             function animate(ts) {
@@ -762,12 +886,11 @@ if analyze:
     
     # Most common words
     if most_common:
-        st.markdown(f"""
-        <div class="common-words">
-            <strong>🔥 Most Common Words:</strong> 
-            {', '.join([f'"{word}" ({count})' for word, count in most_common])}
-        </div>
-        """, unsafe_allow_html=True)
+        common_words_html = '<div class="common-words"><strong>🔥 Most Common Words:</strong> '
+        for word, count in most_common:
+            common_words_html += f'<span>{word} ({count})</span>'
+        common_words_html += '</div>'
+        st.markdown(common_words_html, unsafe_allow_html=True)
     
     # --------------------------------------------------
     # TABS
@@ -972,7 +1095,7 @@ Analysis completed successfully!
             use_container_width=True
         )
     
-    st.success("✅ NLP Analysis Completed Successfully!")
+    st.success("✨ NLP Analysis Completed Successfully!")
 
 # --------------------------------------------------
 # FOOTER
@@ -981,6 +1104,6 @@ Analysis completed successfully!
 st.markdown("""
 <div class="footer">
     Built with ❤️ using Streamlit, NLTK & spaCy • 
-    <span>Natural Language Processing Toolkit</span>
+    <span>NLP Toolkit</span>
 </div>
 """, unsafe_allow_html=True)
