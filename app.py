@@ -118,28 +118,6 @@ def load_css():
             margin-bottom: 0.75rem;
         }
 
-        .info-item {
-            background: #F9FAFB;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            margin-bottom: 0.5rem;
-            border: 1px solid #F3F4F6;
-        }
-
-        .info-item-label {
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            color: #9CA3AF;
-        }
-
-        .info-item-value {
-            font-weight: 600;
-            color: #1F2937;
-            margin-top: 2px;
-        }
-
         .tech-tags {
             display: flex;
             flex-wrap: wrap;
@@ -232,37 +210,6 @@ def load_css():
             position: relative;
             z-index: 1;
         }
-
-        /* ==========================================================
-           Info Badges
-        ========================================================== */
-        .badge-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 1rem 0 1.5rem 0;
-            justify-content: center;
-        }
-
-        .badge {
-            background: white;
-            padding: 0.5rem 1.2rem;
-            border-radius: 30px;
-            border: 1px solid #E5E7EB;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: #4B5563;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-            transition: all 0.2s ease;
-        }
-
-        .badge:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-            border-color: #C7D2FE;
-        }
-
-        .badge-emoji { margin-right: 6px; }
 
         /* ==========================================================
            Section Headers
@@ -613,14 +560,6 @@ def load_spacy():
 nlp = load_spacy()
 
 # --------------------------------------------------
-# PROJECT META
-# --------------------------------------------------
-
-DEVELOPER_NAME = "Your Name"
-ROLL_NO = "00"
-PROJECT_DATE = "26/07/2026"
-
-# --------------------------------------------------
 # SIDEBAR
 # --------------------------------------------------
 
@@ -632,27 +571,6 @@ with st.sidebar:
             <div class="sidebar-title">NLP Toolkit</div>
             <div class="sidebar-subtitle">v2.0</div>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("""
-    <div class="sidebar-section">
-        <div class="sidebar-section-title">Project Info</div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown(f"""
-    <div class="info-item">
-        <div class="info-item-label">Developer</div>
-        <div class="info-item-value">{DEVELOPER_NAME}</div>
-    </div>
-    <div class="info-item">
-        <div class="info-item-label">Roll No.</div>
-        <div class="info-item-value">{ROLL_NO}</div>
-    </div>
-    <div class="info-item">
-        <div class="info-item-label">Date</div>
-        <div class="info-item-value">{PROJECT_DATE}</div>
     </div>
     """, unsafe_allow_html=True)
     
@@ -682,19 +600,6 @@ st.markdown("""
 <div class="hero-container">
     <h1 class="hero-title">🧠 Natural Language <span>Processing</span></h1>
     <p class="hero-subtitle">Analyze, understand, and extract insights from your text with advanced NLP techniques</p>
-</div>
-""", unsafe_allow_html=True)
-
-# --------------------------------------------------
-# INFO BADGES
-# --------------------------------------------------
-
-st.markdown(f"""
-<div class="badge-container">
-    <span class="badge"><span class="badge-emoji">👤</span> {DEVELOPER_NAME}</span>
-    <span class="badge"><span class="badge-emoji">📅</span> {PROJECT_DATE}</span>
-    <span class="badge"><span class="badge-emoji">🔢</span> Roll: {ROLL_NO}</span>
-    <span class="badge"><span class="badge-emoji">📖</span> NLP Analysis</span>
 </div>
 """, unsafe_allow_html=True)
 
