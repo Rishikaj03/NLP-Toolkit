@@ -21,18 +21,15 @@ st.set_page_config(
 # --------------------------------------------------
 # CUSTOM CSS FOR PROFESSIONAL UI
 # --------------------------------------------------
-
 def load_css():
     st.markdown("""
     <style>
         /* ==========================================================
-           Google Fonts
+           Google Fonts — Baloo 2 (bubble display), Fredoka (playful
+           labels), Inter (body / matches config.toml "sans serif")
         ========================================================== */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Baloo+2:wght@600;700;800&family=Fredoka:wght@500;600;700&display=swap');
 
-        /* ==========================================================
-           Global
-        ========================================================== */
         html, body, [class*="css"] {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             font-size: 15.5px;
@@ -41,425 +38,374 @@ def load_css():
             text-rendering: optimizeLegibility;
         }
 
-        p, li, span, div {
-            letter-spacing: 0.1px;
-        }
-
         :root {
-            --accent-1: #4F46E5;
-            --accent-2: #0D9488;
-            --accent-3: #D97706;
-            --ink: #1E293B;
+            --primary: #4F46E5;
+            --pink: #FF6EC7;
+            --cyan: #22D3EE;
+            --purple: #A78BFA;
+            --lime: #A3E635;
+            --amber: #FBBF24;
+            --bg: #F4F7FC;
+            --surface: #FFFFFF;
+            --text: #1F2937;
             --muted: #64748B;
-            --line: #E2E8F0;
+            --line: #E7E9F5;
         }
 
         /* ==========================================================
-           Background - light, airy, faint warmth (not plain white,
-           not dim)
+           Background — light per config.toml, pastel Y2K glow blobs
         ========================================================== */
         .stApp {
             background:
-                radial-gradient(1200px 500px at 10% -5%, rgba(79,70,229,0.045), transparent 60%),
-                radial-gradient(1000px 500px at 95% 10%, rgba(13,148,136,0.045), transparent 60%),
-                linear-gradient(180deg, #FBFAFF 0%, #FAFDFC 45%, #FDFCF9 100%);
+                radial-gradient(900px 480px at 8% -8%, rgba(255,110,199,0.10), transparent 60%),
+                radial-gradient(900px 480px at 98% 6%, rgba(34,211,238,0.10), transparent 60%),
+                radial-gradient(800px 500px at 50% 105%, rgba(167,139,250,0.08), transparent 60%),
+                var(--bg);
             background-attachment: fixed;
         }
 
-        .stApp::before, .stApp::after {
-            content: '';
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(100px);
-            z-index: 0;
-            pointer-events: none;
-            opacity: 0.25;
-        }
-        .stApp::before {
-            width: 360px; height: 360px;
-            top: -110px; left: -90px;
-            background: radial-gradient(circle, rgba(79,70,229,0.16), transparent 70%);
-        }
-        .stApp::after {
-            width: 380px; height: 380px;
-            bottom: -110px; right: -90px;
-            background: radial-gradient(circle, rgba(13,148,136,0.16), transparent 70%);
-        }
-
-        /* ==========================================================
-           Hide Header/Footer
-        ========================================================== */
         header { visibility: hidden; }
         footer { visibility: hidden; }
 
-        /* ==========================================================
-           Main Container
-        ========================================================== */
         .block-container {
             max-width: 1180px;
-            padding-top: 2rem;
+            padding-top: 1.6rem;
             padding-bottom: 2rem;
             position: relative;
             z-index: 1;
         }
 
+        h1, h2, h3 {
+            color: var(--text) !important;
+            font-family: 'Fredoka', 'Inter', sans-serif !important;
+        }
+
         /* ==========================================================
-           Header - clean white card, thin gradient top edge
+           SIDEBAR — "Neural Lens" project panel
         ========================================================== */
-        .header-container {
-            background: rgba(255,255,255,0.85);
-            backdrop-filter: blur(8px);
-            padding: 2.6rem 2rem 2.1rem 2rem;
-            border-radius: 20px;
-            margin-bottom: 2.5rem;
-            border: 1px solid var(--line);
-            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 12px 28px rgba(15, 23, 42, 0.05);
-            position: relative;
-            overflow: hidden;
-            transition: box-shadow 0.3s ease;
+        section[data-testid="stSidebar"] {
+            background: linear-gradient(180deg, #FFFFFF 0%, #FBF7FF 100%);
+            border-right: 1px solid var(--line);
         }
 
-        .header-container:hover {
-            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 16px 36px rgba(79, 70, 229, 0.09);
+        .sb-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0.4rem 0 1.4rem 0;
         }
-
-        .header-container::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #4F46E5, #7C3AED, #0EA5E9, #F59E0B);
-            background-size: 300% 100%;
-            animation: borderFlow 6s linear infinite;
+        .sb-brand-emoji {
+            font-size: 1.8rem;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.08));
         }
-
-        @keyframes borderFlow {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 300% 0%; }
-        }
-
-        .header-title {
-            font-family: 'Sora', 'Inter', sans-serif;
-            color: var(--ink);
-            font-size: 2.6rem;
-            font-weight: 700;
-            margin: 0;
-            text-align: center;
-            letter-spacing: -0.5px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header-title span {
-            background: linear-gradient(135deg, #4F46E5, #7C3AED, #0EA5E9);
+        .sb-brand-name {
+            font-family: 'Baloo 2', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--pink));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .header-subtitle {
-            color: var(--muted);
-            text-align: center;
-            font-size: 1.05rem;
-            margin-top: 0.5rem;
-            font-weight: 400;
-            letter-spacing: 0.2px;
-            position: relative;
-            z-index: 1;
+        .sb-heading {
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text);
+            margin: 1.2rem 0 0.6rem 0;
+            padding-bottom: 6px;
+            border-bottom: 2px dashed #E9D5FF;
         }
+
+        .sb-card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 0.7rem 1rem;
+            box-shadow: 0 2px 8px rgba(79,70,229,0.05);
+        }
+        .sb-card p {
+            margin: 0.45rem 0;
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.35;
+        }
+        .sb-card strong {
+            color: var(--text);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .sb-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+        .sb-chip {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 0.32rem 0.75rem;
+            border-radius: 999px;
+            color: #1E293B;
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+            transition: transform 0.2s ease;
+        }
+        .sb-chip:hover { transform: translateY(-2px) scale(1.04); }
+        .sb-chip-pink   { background: linear-gradient(135deg, #FFD6EF, #FFC1E3); }
+        .sb-chip-cyan   { background: linear-gradient(135deg, #CFFAFE, #A5F3FC); }
+        .sb-chip-purple { background: linear-gradient(135deg, #EDE9FE, #DDD6FE); }
+        .sb-chip-lime   { background: linear-gradient(135deg, #ECFCCB, #D9F99D); }
+
+        .sb-footnote {
+            margin-top: 1.6rem;
+            font-size: 0.8rem;
+            color: var(--muted);
+            line-height: 1.5;
+            padding-top: 1rem;
+            border-top: 1px solid var(--line);
+        }
+
+        /* ==========================================================
+           INFO BADGE ROW (Developer / Date / Roll No)
+        ========================================================== */
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 1.1rem 0 1.6rem 0;
+        }
+        .info-badge {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text);
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 0.5rem 1.1rem;
+            box-shadow: 0 2px 6px rgba(79,70,229,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+            transition: all 0.2s ease;
+        }
+        .info-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(79,70,229,0.12);
+            border-color: #C7D2FE;
+        }
+
+        .section-label {
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            font-size: 1.3rem;
+            color: var(--text);
+            margin: 0.4rem 0 0.6rem 2px;
+        }
+        .section-label::before { content: "📝 "; }
 
         /* ==========================================================
            Generic Card
         ========================================================== */
         .card {
-            background: rgba(255,255,255,0.85);
-            backdrop-filter: blur(8px);
+            background: var(--surface);
             padding: 1.5rem;
-            border-radius: 16px;
+            border-radius: 18px;
             border: 1px solid var(--line);
-            box-shadow: 0 1px 2px rgba(15,23,42,0.03);
+            box-shadow: 0 2px 10px rgba(79,70,229,0.05);
             margin-bottom: 1.5rem;
             transition: all 0.25s ease;
         }
-
         .card:hover {
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
-            border-color: #C7D2FE;
+            box-shadow: 0 12px 28px rgba(236,110,199,0.12);
+            border-color: #F5D0E8;
             transform: translateY(-2px);
-        }
-
-        /* ==========================================================
-           Headings
-        ========================================================== */
-        h1, h2, h3 {
-            color: var(--ink) !important;
-            font-family: 'Sora', 'Inter', sans-serif !important;
         }
 
         /* ==========================================================
            Text Area
         ========================================================== */
         .stTextArea textarea {
-            background: #FFFFFF !important;
-            color: var(--ink) !important;
+            background: var(--surface) !important;
+            color: var(--text) !important;
             border: 2px solid var(--line) !important;
-            border-radius: 14px !important;
+            border-radius: 18px !important;
             padding: 18px !important;
             font-size: 15px !important;
             font-family: 'Inter', sans-serif !important;
             line-height: 1.7 !important;
             transition: all 0.25s ease !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            box-shadow: 0 2px 8px rgba(79,70,229,0.04);
         }
-
         .stTextArea textarea:focus {
-            border-color: #6366F1 !important;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.10), 0 4px 14px rgba(99, 102, 241, 0.06) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 4px rgba(79,70,229,0.12), 0 4px 16px rgba(236,110,199,0.10) !important;
         }
-
         .stTextArea textarea::placeholder {
-            color: #94A3B8 !important;
+            color: #A1A8C3 !important;
             font-weight: 300;
         }
 
         /* ==========================================================
-           Button - clean gradient, subtle lift
+           Button — glossy Y2K bubble button
         ========================================================== */
         .stButton > button {
             width: 100%;
-            height: 54px;
+            height: 56px;
             border: none;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--pink) 55%, var(--purple) 100%);
+            background-size: 200% 200%;
             color: white;
-            font-size: 16px;
+            font-family: 'Fredoka', 'Inter', sans-serif;
+            font-size: 17px;
             font-weight: 600;
-            font-family: 'Sora', 'Inter', sans-serif;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
             letter-spacing: 0.3px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 18px rgba(79,70,229,0.28), inset 0 1px 0 rgba(255,255,255,0.35);
             position: relative;
             overflow: hidden;
         }
-
         .stButton > button::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s ease;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+            transition: left 0.6s ease;
         }
-
         .stButton > button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 22px rgba(79, 70, 229, 0.32);
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 12px 26px rgba(236,110,199,0.35), inset 0 1px 0 rgba(255,255,255,0.4);
+            background-position: 100% 100%;
         }
-
-        .stButton > button:hover::before {
-            left: 100%;
-        }
-
-        .stButton > button:active {
-            transform: translateY(0px);
-        }
+        .stButton > button:hover::before { left: 100%; }
+        .stButton > button:active { transform: translateY(-1px) scale(0.99); }
 
         /* ==========================================================
-           Metric Cards - light, crisp, animated top edge on hover
+           Metric cards, tabs, result boxes, tokens, misc
         ========================================================== */
         .metric-card {
-            background: rgba(255,255,255,0.85);
-            backdrop-filter: blur(8px);
-            padding: 20px;
-            border-radius: 16px;
+            background: linear-gradient(180deg, #FFFFFF, #FDFBFF);
             border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 18px 12px;
             text-align: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 18px;
+            box-shadow: 0 2px 6px rgba(79,70,229,0.05);
         }
-
-        .metric-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #4F46E5, #7C3AED, #0EA5E9);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .metric-card:hover::before {
-            opacity: 1;
-        }
-
-        .metric-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 26px rgba(79, 70, 229, 0.10);
-            border-color: #C7D2FE;
-        }
-
+        .metric-icon { font-size: 1.3rem; margin-bottom: 2px; }
         .metric-number {
-            font-family: 'Sora', sans-serif;
-            font-size: 2.3rem;
+            font-family: 'Baloo 2', sans-serif;
+            font-size: 2.1rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            background: linear-gradient(135deg, var(--pink), var(--purple), var(--cyan));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin: 0;
-            line-height: 1.2;
         }
-
         .metric-label {
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             color: var(--muted);
-            margin-top: 0.35rem;
+            margin-top: 0.2rem;
             font-weight: 500;
-            letter-spacing: 0.3px;
         }
 
-        /* ==========================================================
-           Tabs
-        ========================================================== */
         .stTabs [data-baseweb="tab-list"] {
             gap: 8px;
-            background: #F1F5F9;
+            background: #F1EEFC;
             padding: 6px;
-            border-radius: 14px;
+            border-radius: 16px;
             border: 1px solid var(--line);
             flex-wrap: wrap;
         }
-
         .stTabs [data-baseweb="tab"] {
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 0.6rem 1.2rem;
             font-weight: 500;
             font-size: 0.88rem;
             color: var(--muted);
-            font-family: 'Inter', sans-serif;
+            font-family: 'Fredoka', sans-serif;
             transition: all 0.22s ease;
             background: transparent;
             border: none;
         }
-
         .stTabs [data-baseweb="tab"]:hover {
-            background: rgba(255, 255, 255, 0.7);
-            color: var(--ink);
+            background: rgba(255,255,255,0.7);
+            color: var(--text);
         }
-
         .stTabs [aria-selected="true"] {
-            background: #FFFFFF !important;
-            color: #4F46E5 !important;
-            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.12);
+            background: linear-gradient(135deg, var(--primary), var(--pink)) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 4px 14px rgba(236,110,199,0.28);
             font-weight: 600;
         }
 
-        /* ==========================================================
-           Result Boxes
-        ========================================================== */
         .result-box {
-            background: rgba(255,255,255,0.85);
-            backdrop-filter: blur(8px);
+            background: var(--surface);
             padding: 1rem 1.25rem;
-            border-radius: 12px;
-            border-left: 4px solid #6366F1;
+            border-radius: 14px;
+            border-left: 4px solid var(--pink);
             border-top: 1px solid var(--line);
             border-right: 1px solid var(--line);
             border-bottom: 1px solid var(--line);
             margin-bottom: 0.75rem;
-            color: var(--ink);
+            color: var(--text);
             font-size: 0.95rem;
             line-height: 1.6;
             transition: all 0.2s ease;
         }
-
         .result-box:hover {
-            border-left-color: #7C3AED;
+            border-left-color: var(--purple);
             transform: translateX(4px);
-            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.08);
+            box-shadow: 0 4px 14px rgba(167,139,250,0.14);
         }
 
         .token-box {
             display: inline-block;
-            background: #F1F5F9;
+            background: #F1EEFC;
             padding: 0.3rem 0.8rem;
             margin: 0.2rem;
-            border-radius: 10px;
+            border-radius: 999px;
             border: 1px solid var(--line);
             font-size: 0.9rem;
-            color: var(--ink);
+            color: var(--text);
             font-weight: 500;
             transition: all 0.2s ease;
         }
-
         .token-box:hover {
-            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            background: linear-gradient(135deg, var(--primary), var(--pink));
             border-color: transparent;
             color: #FFFFFF;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+            box-shadow: 0 4px 12px rgba(236,110,199,0.3);
         }
 
-        /* ==========================================================
-           Quick Stats
-        ========================================================== */
         .quick-stats {
-            background: rgba(255,255,255,0.85);
-            backdrop-filter: blur(8px);
+            background: var(--surface);
             padding: 1rem 1.25rem;
-            border-radius: 14px;
+            border-radius: 16px;
             border: 1px solid var(--line);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            box-shadow: 0 2px 8px rgba(79,70,229,0.05);
         }
+        .quick-stats p { margin: 0.4rem 0; color: #475569; font-size: 0.95rem; }
+        .quick-stats strong { color: var(--primary); font-weight: 600; }
 
-        .quick-stats p {
-            margin: 0.4rem 0;
-            color: #475569;
-            font-size: 0.95rem;
-        }
-
-        .quick-stats strong {
-            color: #4F46E5;
-            font-weight: 600;
-        }
-
-        /* ==========================================================
-           Common Words Box
-        ========================================================== */
         .common-words {
-            background: rgba(255,255,255,0.85);
-            backdrop-filter: blur(8px);
+            background: var(--surface);
             padding: 0.75rem 1.25rem;
-            border-radius: 12px;
+            border-radius: 14px;
             margin-top: 0.75rem;
             border: 1px solid var(--line);
-            color: var(--ink);
+            color: var(--text);
             font-size: 0.95rem;
         }
+        .common-words strong { color: var(--pink); }
 
-        .common-words strong {
-            color: #7C3AED;
-        }
-
-        /* ==========================================================
-           Dataframes
-        ========================================================== */
         [data-testid="stDataFrame"] {
-            border-radius: 12px;
+            border-radius: 14px;
             overflow: hidden;
             border: 1px solid var(--line);
         }
 
-        /* ==========================================================
-           Footer
-        ========================================================== */
         .footer {
             text-align: center;
             color: #94A3B8;
@@ -468,100 +414,45 @@ def load_css():
             border-top: 1px solid var(--line);
             margin-top: 2rem;
         }
-
         .footer span {
-            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(135deg, var(--primary), var(--pink));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             font-weight: 600;
         }
 
-        /* ==========================================================
-           Scrollbar
-        ========================================================== */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #F1F5F9;
-            border-radius: 10px;
-        }
-
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #F1EEFC; border-radius: 10px; }
         ::-webkit-scrollbar-thumb {
-            background: #C7D2FE;
+            background: linear-gradient(180deg, var(--pink), var(--purple));
             border-radius: 10px;
         }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: #A5B4FC;
-        }
-
-        /* ==========================================================
-           Download button accent
-        ========================================================== */
         [data-testid="stDownloadButton"] > button {
-            background: linear-gradient(135deg, #0EA5E9 0%, #4F46E5 100%) !important;
-            box-shadow: 0 4px 14px rgba(14, 165, 233, 0.25) !important;
+            background: linear-gradient(135deg, var(--cyan) 0%, var(--primary) 100%) !important;
+            border-radius: 999px !important;
+            font-family: 'Fredoka', sans-serif !important;
+            box-shadow: 0 6px 16px rgba(34,211,238,0.25) !important;
         }
+
+        [data-testid="stAlert"] { border-radius: 14px !important; }
 
         /* ==========================================================
            Responsive
         ========================================================== */
         @media (max-width: 768px) {
-            .header-title {
-                font-size: 2rem;
-            }
-
-            .metric-number {
-                font-size: 1.8rem;
-            }
-
-            .stTabs [data-baseweb="tab"] {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.8rem;
-            }
+            h1, h2, h3 { color: var(--text); }
+            .block-container { padding: 1rem !important; }
+            .stTextArea textarea { min-height: 180px !important; font-size: 16px !important; }
+            .stButton button { width: 100%; font-size: 18px; height: 55px; }
+            .metric-number { font-size: 1.7rem; }
+            .stTabs [data-baseweb="tab"] { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+            .badge-row { gap: 6px; }
+            .info-badge { font-size: 0.75rem; padding: 0.4rem 0.85rem; }
         }
-
-        /* Mobile Responsive */
-        @media (max-width: 768px){
-            h1,h2,h3{ color: var(--ink);}
-
-            h1{
-                font-size:2rem !important;
-                text-align:center;
-            }
-
-            h2{
-                font-size:1.5rem !important;
-            }
-
-            h3{
-                font-size:1.2rem !important;
-            }
-
-            .block-container{
-                padding:1rem !important;
-            }
-
-            .stTextArea textarea{
-                min-height:180px !important;
-                font-size:16px !important;
-            }
-
-            .stButton button{
-                width:100%;
-                font-size:18px;
-                height:55px;
-            }
-
-            div[data-testid="stMetric"]{
-                margin-bottom:12px;
-            }
-        }
-
     </style>
     """, unsafe_allow_html=True)
 
@@ -595,32 +486,96 @@ def load_spacy():
 nlp = load_spacy()
 
 # --------------------------------------------------
+# PROJECT META (edit these three lines for your submission)
+# --------------------------------------------------
+
+DEVELOPER_NAME = "Your Name"
+ROLL_NO = "00"
+PROJECT_DATE = "26/07/2026"
+
+# --------------------------------------------------
+# SIDEBAR
+# --------------------------------------------------
+
+with st.sidebar:
+    st.markdown("""
+    <div class="sb-brand">
+        <span class="sb-brand-emoji">💽</span>
+        <span class="sb-brand-name">Neural Lens</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="sb-heading">Project Information</div>', unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="sb-card">
+        <p><strong>Developer</strong><br>{DEVELOPER_NAME}</p>
+        <p><strong>Roll No.</strong><br>{ROLL_NO}</p>
+        <p><strong>Date</strong><br>{PROJECT_DATE}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="sb-heading">Technology</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="sb-chips">
+        <span class="sb-chip sb-chip-pink">Python</span>
+        <span class="sb-chip sb-chip-cyan">NLTK</span>
+        <span class="sb-chip sb-chip-purple">spaCy</span>
+        <span class="sb-chip sb-chip-lime">Streamlit</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="sb-footnote">A retro-futuristic workspace for practical natural language processing. ✨</div>
+    """, unsafe_allow_html=True)
+
+# --------------------------------------------------
 # HEADER
 # --------------------------------------------------
 
 HERO_HTML = """
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
-<div id="hero" style="position:relative;width:100%;height:196px;border-radius:22px;overflow:hidden;
-     background:linear-gradient(135deg,#EEF2FF 0%,#ECFDF5 55%,#FFFBEB 100%);
-     border:1px solid #E2E8F0;box-shadow:0 1px 3px rgba(15,23,42,0.05),0 14px 30px rgba(79,70,229,0.08);
-     font-family:'Sora','Inter',sans-serif;">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Baloo+2:wght@700;800&family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
+<div id="hero" style="position:relative;width:100%;height:230px;border-radius:26px;overflow:hidden;
+     background:linear-gradient(135deg,#FFE1F3 0%,#E5E9FF 45%,#DFF9F6 100%);
+     border:2px solid #FFFFFF;box-shadow:0 2px 4px rgba(79,70,229,0.06),0 18px 36px rgba(236,72,201,0.14);
+     font-family:'Baloo 2','Inter',sans-serif;">
   <canvas id="particles" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
-  <div style="position:absolute;top:0;left:0;right:0;height:4px;
-       background:linear-gradient(90deg,#4F46E5,#0D9488,#D97706,#4F46E5);
-       background-size:300% 100%;animation:flowBorder 6s linear infinite;"></div>
+
+  <div style="position:absolute;top:0;left:0;right:0;height:6px;
+       background:linear-gradient(90deg,#FF6EC7,#A78BFA,#22D3EE,#FBBF24,#FF6EC7);
+       background-size:300% 100%;animation:flowBorder 5s linear infinite;"></div>
+
+  <div class="sticker" style="top:14px; left:24px; animation-delay:0s;">✨</div>
+  <div class="sticker" style="top:36px; right:40px; animation-delay:0.6s;">🌈</div>
+  <div class="sticker" style="bottom:22px; left:48px; animation-delay:1.2s;">💾</div>
+  <div class="sticker" style="bottom:30px; right:28px; animation-delay:1.8s;">👾</div>
+
   <div style="position:relative;z-index:2;height:100%;display:flex;flex-direction:column;
        align-items:center;justify-content:center;text-align:center;padding:0 20px;">
-    <div style="font-size:2.4rem;font-weight:700;color:#312E81;letter-spacing:-0.5px;">
-      🧠 <span style="background:linear-gradient(135deg,#4F46E5,#0D9488);-webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;background-clip:text;">NLP Toolkit</span>
+    <div style="font-size:2.9rem;font-weight:800;color:#312E81;letter-spacing:-0.5px;
+         text-shadow:2px 2px 0 rgba(255,255,255,0.6);">
+      🧠 <span style="background:linear-gradient(135deg,#4F46E5,#EC4899,#22D3EE);background-size:200% 200%;
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      animation:shimmerText 5s ease infinite;">NLP Toolkit</span>
     </div>
-    <div style="font-size:1rem;color:#475569;margin-top:6px;">
+    <div style="font-family:'Fredoka','Inter',sans-serif;font-size:1.05rem;color:#4338CA;margin-top:8px;font-weight:500;">
       Advanced Natural Language Processing &mdash; Analyze, Understand, and Extract Insights
     </div>
   </div>
 </div>
 <style>
 @keyframes flowBorder { 0% { background-position: 0% 0%; } 100% { background-position: 300% 0%; } }
+@keyframes shimmerText { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes stickerFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(8deg); }
+}
+.sticker {
+    position: absolute;
+    font-size: 1.4rem;
+    z-index: 2;
+    animation: stickerFloat 3.4s ease-in-out infinite;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.08));
+}
 </style>
 <script>
   const canvas = document.getElementById('particles');
@@ -629,13 +584,13 @@ HERO_HTML = """
   resize();
   window.addEventListener('resize', resize);
 
-  const colors = ['#818CF8', '#5EEAD4', '#FCD34D'];
+  const colors = ['#FF9ED8', '#A5B4FC', '#67E8F9', '#FDE68A'];
   const particles = [];
-  for (let i = 0; i < 42; i++) {
+  for (let i = 0; i < 46; i++) {
     particles.push({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      r: Math.random() * 2 + 1,
+      r: Math.random() * 2.2 + 1,
       dx: (Math.random() - 0.5) * 0.35,
       dy: (Math.random() - 0.5) * 0.35,
       c: colors[Math.floor(Math.random() * colors.length)]
@@ -667,7 +622,7 @@ HERO_HTML = """
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fillStyle = p.c;
-      ctx.globalAlpha = 0.6;
+      ctx.globalAlpha = 0.75;
       ctx.fill();
     }
     ctx.globalAlpha = 1;
@@ -679,7 +634,7 @@ HERO_HTML = """
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
-          ctx.strokeStyle = 'rgba(79,70,229,0.10)';
+          ctx.strokeStyle = 'rgba(167,139,250,0.16)';
           ctx.lineWidth = 1;
           ctx.stroke();
         }
@@ -690,16 +645,31 @@ HERO_HTML = """
   animate();
 </script>
 """
-components.html(HERO_HTML, height=210)
+components.html(HERO_HTML, height=245)
+
+# --------------------------------------------------
+# INFO BADGES
+# --------------------------------------------------
+
+st.markdown(f"""
+<div class="badge-row">
+    <span class="info-badge">👤 Developer: {DEVELOPER_NAME}</span>
+    <span class="info-badge">🗓️ Date: {PROJECT_DATE}</span>
+    <span class="info-badge">🔢 Roll No: {ROLL_NO}</span>
+</div>
+""", unsafe_allow_html=True)
 
 # --------------------------------------------------
 # INPUT SECTION
 # --------------------------------------------------
 
+st.markdown('<div class="section-label">Your Text</div>', unsafe_allow_html=True)
+
 text = st.text_area(
     "📝 Enter your text for analysis",
     height=200,
-    placeholder="Type or paste your English text here...\n\nExample: Apple Inc. is planning to open a new store in New York next month. The company's CEO, Tim Cook, announced this exciting news yesterday."
+    placeholder="Type or paste your English text here...\n\nExample: Apple Inc. is planning to open a new store in New York next month. The company's CEO, Tim Cook, announced this exciting news yesterday.",
+    label_visibility="collapsed"
 )
 
 col_btn1, col_btn2, col_btn3 = st.columns([1, 2, 1])
@@ -807,7 +777,7 @@ if analyze:
     )
 
     METRICS_STYLE_AND_SCRIPT = """
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; font-family: 'Inter', sans-serif; }
         .metrics-grid {
@@ -816,9 +786,9 @@ if analyze:
             gap: 14px;
         }
         .metric-card {
-            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.8));
-            border: 1px solid #E2E8F0;
-            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.97), rgba(253,251,255,0.9));
+            border: 1px solid #E7E9F5;
+            border-radius: 18px;
             padding: 18px 12px;
             text-align: center;
             box-shadow: 0 1px 2px rgba(0,0,0,0.03);
@@ -832,21 +802,21 @@ if analyze:
             position: absolute;
             top: 0; left: 0; right: 0;
             height: 3px;
-            background: linear-gradient(90deg, #4F46E5, #0D9488, #D97706);
+            background: linear-gradient(90deg, #FF6EC7, #A78BFA, #22D3EE);
             opacity: 0;
             transition: opacity 0.25s ease;
         }
         .metric-card:hover::before { opacity: 1; }
         .metric-card:hover {
-            box-shadow: 0 12px 26px rgba(79, 70, 229, 0.12);
-            border-color: #C7D2FE;
+            box-shadow: 0 12px 26px rgba(236, 110, 199, 0.16);
+            border-color: #F5D0E8;
         }
         .metric-icon { font-size: 1.3rem; margin-bottom: 2px; }
         .metric-number {
-            font-family: 'Sora', sans-serif;
+            font-family: 'Baloo 2', sans-serif;
             font-size: 2.1rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #4F46E5 0%, #0D9488 100%);
+            background: linear-gradient(135deg, #FF6EC7 0%, #A78BFA 55%, #22D3EE 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
