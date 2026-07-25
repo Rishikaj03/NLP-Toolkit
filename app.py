@@ -37,28 +37,21 @@ def load_css():
         }
 
         :root {
-            --grad-a: #7C3AED;
-            --grad-b: #EC4899;
-            --grad-c: #06B6D4;
-            --grad-d: #F59E0B;
+            --accent-1: #4F46E5;
+            --accent-2: #7C3AED;
+            --accent-3: #0EA5E9;
+            --ink: #1E293B;
+            --muted: #64748B;
+            --line: #E2E8F0;
         }
 
         /* ==========================================================
-           Animated Background
+           Background - clean, light, faint accent glows
         ========================================================== */
         .stApp {
-            background: linear-gradient(-45deg, #0F0C29, #302B63, #24243e, #1a1a2e);
-            background-size: 400% 400%;
-            animation: gradientShift 18s ease infinite;
+            background: #F8FAFC;
         }
 
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* floating orbs behind content */
         .stApp::before, .stApp::after {
             content: '';
             position: fixed;
@@ -66,26 +59,17 @@ def load_css():
             filter: blur(90px);
             z-index: 0;
             pointer-events: none;
+            opacity: 0.35;
         }
         .stApp::before {
-            width: 420px; height: 420px;
-            top: -120px; left: -100px;
-            background: radial-gradient(circle, rgba(124,58,237,0.35), transparent 70%);
-            animation: floatOrb1 14s ease-in-out infinite;
+            width: 360px; height: 360px;
+            top: -110px; left: -90px;
+            background: radial-gradient(circle, rgba(79,70,229,0.16), transparent 70%);
         }
         .stApp::after {
-            width: 480px; height: 480px;
-            bottom: -140px; right: -120px;
-            background: radial-gradient(circle, rgba(6,182,212,0.30), transparent 70%);
-            animation: floatOrb2 16s ease-in-out infinite;
-        }
-        @keyframes floatOrb1 {
-            0%, 100% { transform: translate(0,0) scale(1); }
-            50% { transform: translate(40px, 60px) scale(1.15); }
-        }
-        @keyframes floatOrb2 {
-            0%, 100% { transform: translate(0,0) scale(1); }
-            50% { transform: translate(-50px, -30px) scale(1.1); }
+            width: 380px; height: 380px;
+            bottom: -110px; right: -90px;
+            background: radial-gradient(circle, rgba(14,165,233,0.14), transparent 70%);
         }
 
         /* ==========================================================
@@ -98,7 +82,7 @@ def load_css():
            Main Container
         ========================================================== */
         .block-container {
-            max-width: 1200px;
+            max-width: 1180px;
             padding-top: 2rem;
             padding-bottom: 2rem;
             position: relative;
@@ -106,166 +90,138 @@ def load_css():
         }
 
         /* ==========================================================
-           Custom Header - Vivid animated gradient + glow border
+           Header - clean white card, thin gradient top edge
         ========================================================== */
         .header-container {
-            background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 45%, #831843 100%);
-            padding: 3rem 2rem 2.4rem 2rem;
-            border-radius: 26px;
+            background: #FFFFFF;
+            padding: 2.6rem 2rem 2.1rem 2rem;
+            border-radius: 20px;
             margin-bottom: 2.5rem;
-            box-shadow: 0 12px 40px rgba(124, 58, 237, 0.35), 0 0 0 1px rgba(255,255,255,0.08) inset;
+            border: 1px solid var(--line);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 12px 28px rgba(15, 23, 42, 0.05);
             position: relative;
             overflow: hidden;
-            animation: headerGlow 6s ease-in-out infinite;
+            transition: box-shadow 0.3s ease;
         }
 
-        @keyframes headerGlow {
-            0%, 100% { box-shadow: 0 12px 40px rgba(124, 58, 237, 0.35), 0 0 0 1px rgba(255,255,255,0.08) inset; }
-            50% { box-shadow: 0 12px 55px rgba(236, 72, 153, 0.4), 0 0 0 1px rgba(255,255,255,0.1) inset; }
+        .header-container:hover {
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 16px 36px rgba(79, 70, 229, 0.09);
         }
 
         .header-container::before {
             content: '';
             position: absolute;
-            top: -60%;
-            right: -15%;
-            width: 420px;
-            height: 420px;
-            background: radial-gradient(circle, rgba(96, 165, 250, 0.20) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: spin 20s linear infinite;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4F46E5, #7C3AED, #0EA5E9, #F59E0B);
+            background-size: 300% 100%;
+            animation: borderFlow 6s linear infinite;
         }
 
-        .header-container::after {
-            content: '';
-            position: absolute;
-            bottom: -40%;
-            left: -12%;
-            width: 320px;
-            height: 320px;
-            background: radial-gradient(circle, rgba(236, 72, 153, 0.18) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: spin 25s linear infinite reverse;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        @keyframes borderFlow {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 300% 0%; }
         }
 
         .header-title {
             font-family: 'Space Grotesk', 'Inter', sans-serif;
-            color: #FFFFFF;
-            font-size: 3rem;
+            color: var(--ink);
+            font-size: 2.6rem;
             font-weight: 700;
             margin: 0;
             text-align: center;
             letter-spacing: -0.5px;
             position: relative;
             z-index: 1;
-            text-shadow: 0 2px 20px rgba(0,0,0,0.25);
         }
 
         .header-title span {
-            background: linear-gradient(135deg, #60A5FA, #A78BFA, #F472B6, #FBBF24);
-            background-size: 300% 300%;
+            background: linear-gradient(135deg, #4F46E5, #7C3AED, #0EA5E9);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: shimmerText 6s ease infinite;
-        }
-
-        @keyframes shimmerText {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
         }
 
         .header-subtitle {
-            color: rgba(255, 255, 255, 0.78);
+            color: var(--muted);
             text-align: center;
-            font-size: 1.1rem;
-            margin-top: 0.6rem;
+            font-size: 1.05rem;
+            margin-top: 0.5rem;
             font-weight: 400;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
             position: relative;
             z-index: 1;
         }
 
         /* ==========================================================
-           Card Styling - Glass morphism with vivid hover
+           Generic Card
         ========================================================== */
         .card {
-            background: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(14px);
+            background: #FFFFFF;
             padding: 1.5rem;
-            border-radius: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            border-radius: 16px;
+            border: 1px solid var(--line);
+            box-shadow: 0 1px 2px rgba(15,23,42,0.03);
             margin-bottom: 1.5rem;
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s ease;
         }
 
         .card:hover {
-            box-shadow: 0 10px 32px rgba(124, 58, 237, 0.25);
-            border-color: rgba(167, 139, 250, 0.4);
-            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+            border-color: #C7D2FE;
+            transform: translateY(-2px);
         }
 
         /* ==========================================================
-           Headings inside content
+           Headings
         ========================================================== */
         h1, h2, h3 {
-            color: #F1F5F9 !important;
+            color: var(--ink) !important;
             font-family: 'Space Grotesk', 'Inter', sans-serif !important;
         }
 
-        .stCaption, [data-testid="stCaptionContainer"] {
-            color: rgba(226, 232, 240, 0.65) !important;
-        }
-
         /* ==========================================================
-           Text Area - Glowing focus ring
+           Text Area
         ========================================================== */
         .stTextArea textarea {
-            background: rgba(15, 23, 42, 0.55) !important;
-            color: #F1F5F9 !important;
-            border: 2px solid rgba(148, 163, 184, 0.25) !important;
-            border-radius: 16px !important;
+            background: #FFFFFF !important;
+            color: var(--ink) !important;
+            border: 2px solid var(--line) !important;
+            border-radius: 14px !important;
             padding: 18px !important;
             font-size: 15px !important;
             font-family: 'Inter', sans-serif !important;
             line-height: 1.7 !important;
-            transition: all 0.3s ease !important;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            transition: all 0.25s ease !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
 
         .stTextArea textarea:focus {
-            border-color: #A78BFA !important;
-            box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.18), 0 4px 24px rgba(167, 139, 250, 0.15) !important;
+            border-color: #6366F1 !important;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.10), 0 4px 14px rgba(99, 102, 241, 0.06) !important;
         }
 
         .stTextArea textarea::placeholder {
-            color: rgba(148, 163, 184, 0.7) !important;
+            color: #94A3B8 !important;
             font-weight: 300;
         }
 
         /* ==========================================================
-           Button - Punchy animated gradient
+           Button - clean gradient, subtle lift
         ========================================================== */
         .stButton > button {
             width: 100%;
-            height: 56px;
+            height: 54px;
             border: none;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #7C3AED 0%, #EC4899 50%, #F59E0B 100%);
-            background-size: 200% 200%;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
             color: white;
-            font-size: 17px;
-            font-weight: 700;
+            font-size: 16px;
+            font-weight: 600;
             font-family: 'Space Grotesk', 'Inter', sans-serif;
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 6px 24px rgba(124, 58, 237, 0.4);
-            letter-spacing: 0.4px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
+            letter-spacing: 0.3px;
             position: relative;
             overflow: hidden;
         }
@@ -277,14 +233,13 @@ def load_css():
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-            transition: left 0.6s ease;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
         }
 
         .stButton > button:hover {
-            transform: translateY(-3px) scale(1.01);
-            box-shadow: 0 10px 36px rgba(236, 72, 153, 0.45);
-            background-position: 100% 100%;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(79, 70, 229, 0.32);
         }
 
         .stButton > button:hover::before {
@@ -292,21 +247,20 @@ def load_css():
         }
 
         .stButton > button:active {
-            transform: translateY(-1px) scale(0.99);
+            transform: translateY(0px);
         }
 
         /* ==========================================================
-           Metric Cards - Neon accent + lift
+           Metric Cards - light, crisp, animated top edge on hover
         ========================================================== */
         .metric-card {
-            background: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(10px);
-            padding: 22px 16px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: #FFFFFF;
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--line);
             text-align: center;
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
             position: relative;
             overflow: hidden;
             margin-bottom: 18px;
@@ -319,16 +273,9 @@ def load_css():
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, #7C3AED, #EC4899, #F59E0B, #06B6D4);
-            background-size: 300% 100%;
+            background: linear-gradient(90deg, #4F46E5, #7C3AED, #0EA5E9);
             opacity: 0;
             transition: opacity 0.3s ease;
-            animation: borderFlow 4s linear infinite;
-        }
-
-        @keyframes borderFlow {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 300% 0%; }
         }
 
         .metric-card:hover::before {
@@ -336,16 +283,16 @@ def load_css():
         }
 
         .metric-card:hover {
-            transform: translateY(-6px) scale(1.02);
-            box-shadow: 0 12px 32px rgba(124, 58, 237, 0.3);
-            border-color: rgba(167, 139, 250, 0.5);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 26px rgba(79, 70, 229, 0.10);
+            border-color: #C7D2FE;
         }
 
         .metric-number {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 2.5rem;
+            font-size: 2.3rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #A78BFA 0%, #F472B6 50%, #FBBF24 100%);
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -354,152 +301,140 @@ def load_css():
         }
 
         .metric-label {
-            font-size: 0.85rem;
-            color: rgba(226, 232, 240, 0.7);
+            font-size: 0.82rem;
+            color: var(--muted);
             margin-top: 0.35rem;
             font-weight: 500;
-            letter-spacing: 0.4px;
-            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         /* ==========================================================
-           Tabs - Glowing active state
+           Tabs
         ========================================================== */
         .stTabs [data-baseweb="tab-list"] {
             gap: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
+            background: #F1F5F9;
             padding: 6px;
-            border-radius: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            border: 1px solid var(--line);
             flex-wrap: wrap;
         }
 
         .stTabs [data-baseweb="tab"] {
-            border-radius: 14px;
+            border-radius: 10px;
             padding: 0.6rem 1.2rem;
             font-weight: 500;
-            font-size: 0.9rem;
-            color: rgba(226, 232, 240, 0.65);
+            font-size: 0.88rem;
+            color: var(--muted);
             font-family: 'Inter', sans-serif;
-            transition: all 0.25s ease;
+            transition: all 0.22s ease;
             background: transparent;
             border: none;
         }
 
         .stTabs [data-baseweb="tab"]:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: #F1F5F9;
+            background: rgba(255, 255, 255, 0.7);
+            color: var(--ink);
         }
 
         .stTabs [aria-selected="true"] {
-            background: linear-gradient(135deg, #7C3AED, #EC4899) !important;
-            color: #FFFFFF !important;
-            box-shadow: 0 4px 18px rgba(236, 72, 153, 0.4);
+            background: #FFFFFF !important;
+            color: #4F46E5 !important;
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.12);
             font-weight: 600;
         }
 
         /* ==========================================================
-           Result Boxes - Gradient border, subtle glow on hover
+           Result Boxes
         ========================================================== */
         .result-box {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(6px);
+            background: #FFFFFF;
             padding: 1rem 1.25rem;
-            border-radius: 14px;
-            border-left: 4px solid transparent;
-            background-image: linear-gradient(rgba(15,23,42,0.55), rgba(15,23,42,0.55)), linear-gradient(135deg, #7C3AED, #EC4899);
-            background-origin: padding-box, border-box;
-            background-clip: padding-box, border-box;
+            border-radius: 12px;
+            border-left: 4px solid #6366F1;
+            border-top: 1px solid var(--line);
+            border-right: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
             margin-bottom: 0.75rem;
-            color: #F1F5F9;
+            color: var(--ink);
             font-size: 0.95rem;
             line-height: 1.6;
-            transition: all 0.25s ease;
+            transition: all 0.2s ease;
         }
 
         .result-box:hover {
-            background-image: linear-gradient(rgba(15,23,42,0.7), rgba(15,23,42,0.7)), linear-gradient(135deg, #A78BFA, #F472B6);
-            transform: translateX(6px);
-            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.2);
+            border-left-color: #7C3AED;
+            transform: translateX(4px);
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.08);
         }
 
         .token-box {
             display: inline-block;
-            background: rgba(255, 255, 255, 0.07);
-            backdrop-filter: blur(4px);
-            padding: 0.35rem 0.85rem;
-            margin: 0.22rem;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: #F1F5F9;
+            padding: 0.3rem 0.8rem;
+            margin: 0.2rem;
+            border-radius: 10px;
+            border: 1px solid var(--line);
             font-size: 0.9rem;
-            color: #F1F5F9;
+            color: var(--ink);
             font-weight: 500;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease;
         }
 
         .token-box:hover {
-            background: linear-gradient(135deg, #7C3AED, #EC4899);
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
             border-color: transparent;
             color: #FFFFFF;
-            transform: translateY(-2px) scale(1.06);
-            box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
         }
 
         /* ==========================================================
-           Quick Stats - Glass card
+           Quick Stats
         ========================================================== */
         .quick-stats {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
+            background: #FFFFFF;
             padding: 1rem 1.25rem;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            border-radius: 14px;
+            border: 1px solid var(--line);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
         }
 
         .quick-stats p {
             margin: 0.4rem 0;
-            color: rgba(226, 232, 240, 0.85);
+            color: #475569;
             font-size: 0.95rem;
         }
 
         .quick-stats strong {
-            background: linear-gradient(135deg, #A78BFA, #F472B6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 700;
+            color: #4F46E5;
+            font-weight: 600;
         }
 
         /* ==========================================================
            Common Words Box
         ========================================================== */
         .common-words {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(6px);
-            padding: 0.85rem 1.25rem;
-            border-radius: 14px;
+            background: #FFFFFF;
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
             margin-top: 0.75rem;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #F1F5F9;
+            border: 1px solid var(--line);
+            color: var(--ink);
             font-size: 0.95rem;
         }
 
         .common-words strong {
-            background: linear-gradient(135deg, #FBBF24, #F472B6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #7C3AED;
         }
 
         /* ==========================================================
            Dataframes
         ========================================================== */
         [data-testid="stDataFrame"] {
-            border-radius: 14px;
+            border-radius: 12px;
             overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.12);
+            border: 1px solid var(--line);
         }
 
         /* ==========================================================
@@ -507,19 +442,19 @@ def load_css():
         ========================================================== */
         .footer {
             text-align: center;
-            color: rgba(148, 163, 184, 0.7);
+            color: #94A3B8;
             padding: 1.5rem 0 0.5rem 0;
             font-size: 0.85rem;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid var(--line);
             margin-top: 2rem;
         }
 
         .footer span {
-            background: linear-gradient(135deg, #A78BFA, #F472B6, #FBBF24);
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            font-weight: 700;
+            font-weight: 600;
         }
 
         /* ==========================================================
@@ -531,33 +466,25 @@ def load_css():
         }
 
         ::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.03);
+            background: #F1F5F9;
             border-radius: 10px;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #7C3AED, #EC4899);
+            background: #C7D2FE;
             border-radius: 10px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #A78BFA, #F472B6);
-        }
-
-        /* ==========================================================
-           Alerts (success/warning/info) restyled
-        ========================================================== */
-        [data-testid="stAlert"] {
-            border-radius: 14px !important;
-            backdrop-filter: blur(8px);
+            background: #A5B4FC;
         }
 
         /* ==========================================================
            Download button accent
         ========================================================== */
         [data-testid="stDownloadButton"] > button {
-            background: linear-gradient(135deg, #06B6D4 0%, #7C3AED 100%) !important;
-            box-shadow: 0 6px 24px rgba(6, 182, 212, 0.35) !important;
+            background: linear-gradient(135deg, #0EA5E9 0%, #4F46E5 100%) !important;
+            box-shadow: 0 4px 14px rgba(14, 165, 233, 0.25) !important;
         }
 
         /* ==========================================================
@@ -580,7 +507,7 @@ def load_css():
 
         /* Mobile Responsive */
         @media (max-width: 768px){
-            h1,h2,h3{ color:#F1F5F9;}
+            h1,h2,h3{ color: var(--ink);}
 
             h1{
                 font-size:2rem !important;
