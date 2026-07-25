@@ -28,13 +28,21 @@ def load_css():
         /* ==========================================================
            Google Fonts
         ========================================================== */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap');
 
         /* ==========================================================
            Global
         ========================================================== */
         html, body, [class*="css"] {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 15.5px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+
+        p, li, span, div {
+            letter-spacing: 0.1px;
         }
 
         :root {
@@ -47,13 +55,14 @@ def load_css():
         }
 
         /* ==========================================================
-           Background - warm, tinted, professional (not plain white)
+           Background - light, airy, faint warmth (not plain white,
+           not dim)
         ========================================================== */
         .stApp {
             background:
-                radial-gradient(1200px 500px at 10% -5%, rgba(79,70,229,0.07), transparent 60%),
-                radial-gradient(1000px 500px at 95% 10%, rgba(13,148,136,0.07), transparent 60%),
-                linear-gradient(180deg, #F3F1FF 0%, #EFF6F5 45%, #F6F4EE 100%);
+                radial-gradient(1200px 500px at 10% -5%, rgba(79,70,229,0.045), transparent 60%),
+                radial-gradient(1000px 500px at 95% 10%, rgba(13,148,136,0.045), transparent 60%),
+                linear-gradient(180deg, #FBFAFF 0%, #FAFDFC 45%, #FDFCF9 100%);
             background-attachment: fixed;
         }
 
@@ -61,15 +70,15 @@ def load_css():
             content: '';
             position: fixed;
             border-radius: 50%;
-            filter: blur(90px);
+            filter: blur(100px);
             z-index: 0;
             pointer-events: none;
-            opacity: 0.4;
+            opacity: 0.25;
         }
         .stApp::before {
             width: 360px; height: 360px;
             top: -110px; left: -90px;
-            background: radial-gradient(circle, rgba(79,70,229,0.18), transparent 70%);
+            background: radial-gradient(circle, rgba(79,70,229,0.16), transparent 70%);
         }
         .stApp::after {
             width: 380px; height: 380px;
@@ -130,7 +139,7 @@ def load_css():
         }
 
         .header-title {
-            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-family: 'Sora', 'Inter', sans-serif;
             color: var(--ink);
             font-size: 2.6rem;
             font-weight: 700;
@@ -184,7 +193,7 @@ def load_css():
         ========================================================== */
         h1, h2, h3 {
             color: var(--ink) !important;
-            font-family: 'Space Grotesk', 'Inter', sans-serif !important;
+            font-family: 'Sora', 'Inter', sans-serif !important;
         }
 
         /* ==========================================================
@@ -225,7 +234,7 @@ def load_css():
             color: white;
             font-size: 16px;
             font-weight: 600;
-            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-family: 'Sora', 'Inter', sans-serif;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
             letter-spacing: 0.3px;
@@ -297,7 +306,7 @@ def load_css():
         }
 
         .metric-number {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: 'Sora', sans-serif;
             font-size: 2.3rem;
             font-weight: 700;
             background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
@@ -590,10 +599,11 @@ nlp = load_spacy()
 # --------------------------------------------------
 
 HERO_HTML = """
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 <div id="hero" style="position:relative;width:100%;height:196px;border-radius:22px;overflow:hidden;
      background:linear-gradient(135deg,#EEF2FF 0%,#ECFDF5 55%,#FFFBEB 100%);
      border:1px solid #E2E8F0;box-shadow:0 1px 3px rgba(15,23,42,0.05),0 14px 30px rgba(79,70,229,0.08);
-     font-family:'Space Grotesk','Inter',sans-serif;">
+     font-family:'Sora','Inter',sans-serif;">
   <canvas id="particles" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
   <div style="position:absolute;top:0;left:0;right:0;height:4px;
        background:linear-gradient(90deg,#4F46E5,#0D9488,#D97706,#4F46E5);
@@ -797,6 +807,7 @@ if analyze:
     )
 
     METRICS_STYLE_AND_SCRIPT = """
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; font-family: 'Inter', sans-serif; }
         .metrics-grid {
@@ -832,7 +843,7 @@ if analyze:
         }
         .metric-icon { font-size: 1.3rem; margin-bottom: 2px; }
         .metric-number {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: 'Sora', sans-serif;
             font-size: 2.1rem;
             font-weight: 700;
             background: linear-gradient(135deg, #4F46E5 0%, #0D9488 100%);
