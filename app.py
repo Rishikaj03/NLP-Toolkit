@@ -548,7 +548,7 @@ Noun Phrase Chunking:
     d1, d2, d3 = st.columns([1,2,1])
     with d2:
         st.download_button("⬇  Download Full Report", data=result,
-                           file_name="nlp_analysis_report.txt", mime="text/plain",
+                           file_name="nlp_analysis_report.txt", mime="text/plain", 
                            use_container_width=True)
     st.success("Analysis complete.")
 
